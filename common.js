@@ -36,3 +36,55 @@ function renderTimeline(nodes, onPick) {
   }
 }
 function closeDrawer() { document.body.classList.remove('drawer'); }
+
+/* 浏览模式：单列 / 双列 / 三列（两个页面共用 localStorage 键 aitoday.cols） */
+var COLS_KEY = 'aitoday.cols';
+function wantCols() { var w = +(qs('cols') || (function () { try { return localStorage.getItem(COLS_KEY); } catch (x) { return 0; } })() || 1); return [1, 2, 3].indexOf(w) < 0 ? 1 : w; }
+function effCols(want) { var w = window.innerWidth; return w < 700 ? 1 : (w < 1100 ? Math.min(want, 2) : want); }
+/* 把 htmls 依次放进当前最矮的一列（阅读顺序仍是从左到右）；图片都预留了比例，高度不会跳 */
+function masonry(feed, htmls, n) {
+  feed.innerHTML = Array(n + 1).join('<div class="col"></div>');
+  var cols = feed.children;
+  htmls.forEach(function (h) {
+    var best = cols[0];
+    for (var c = 1; c < cols.length; c++) if (cols[c].offsetHeight < best.offsetHeight - 4) best = cols[c];
+    best.insertAdjacentHTML('beforeend', h);
+  });
+  wirePics(feed);
+}
+/* 一套布局控制：按钮、窗口缩放、字体加载后重排。draw(n) 负责按 n 列重画 */
+function setupCols(draw) {
+  var want = wantCols(), last = 0;
+  function apply(force) {
+    var n = effCols(want);
+    if (!force && n === last) return;
+    last = n;
+    document.getElementById('shell').className = 'shell c' + n; document.body.setAttribute('data-cols', n);
+    document.querySelectorAll('#cols button').forEach(function (b) { b.classList.toggle('on', +b.dataset.c === want); b.setAttribute('aria-checked', +b.dataset.c === want); });
+    draw(n);
+  }
+  document.getElementById('cols').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    want = +b.dataset.c; try { localStorage.setItem(COLS_KEY, want); } catch (x) {}
+    setQs({ cols: '' }); apply(true);
+  });
+  var t; window.addEventListener('resize', function () { clearTimeout(t); t = setTimeout(function () { apply(false); }, 150); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { if (last > 1) apply(true); });
+  return apply;
+}
+
+/* 图片：可爱的加载动画 → 加载完淡入；失败显示「图片走丢了」。r = 宽/高，用来预留位置 */
+var BOT = '<span class="pic-bot" aria-hidden="true"><b><i></i><i></i></b><s><em></em><em></em><em></em></s></span>';
+function pic(src, r, cls) {
+  var st = r ? ' style="aspect-ratio:' + (+r).toFixed(3) + '"' : '';
+  return '<span class="pic ' + (cls || '') + '"' + st + '>' + BOT + '<img loading="lazy" decoding="async" src="' + esc(src) + '" alt=""></span>';
+}
+function picDone(img) {
+  var box = img.parentNode; if (!box || !box.classList || !box.classList.contains('pic')) return;
+  if (img.naturalWidth > 0) box.classList.add('ok'); else box.classList.add('err');
+}
+function wirePics(root) {
+  (root || document).querySelectorAll('.pic img').forEach(function (img) { if (img.complete) picDone(img); });
+}
+document.addEventListener('load', function (e) { if (e.target.tagName === 'IMG') picDone(e.target); }, true);
+document.addEventListener('error', function (e) { if (e.target.tagName === 'IMG') picDone(e.target); }, true);

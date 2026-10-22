@@ -8,18 +8,25 @@
   <a class="brand" href="index.html"><i></i>今日AI速报</a>
   <nav><a href="index.html">速报</a><a href="kol.html" class="on">KOL</a></nav>
 </div></header>
-<div class="shell c1" id="shell">
-<main class="main">
-  <section class="head">
-    <div class="eyebrow" id="range"></div>
-    <h1 id="title"></h1>
-    <input class="search" type="search" id="q" placeholder="搜索博主或帖子内容" aria-label="搜索">
-  </section>
-  <ul class="people" id="list"></ul>
-</main>
-<aside class="side" id="timeline" aria-label="日期"></aside>
+<div class="shell" id="shell">
+  <main class="main">
+    <section class="head">
+      <div class="eyebrow" id="range"></div>
+      <div class="headrow">
+        <h1 id="title"></h1>
+        <div class="cols" id="cols" role="radiogroup" aria-label="浏览模式">
+          <button data-c="1" title="单列" aria-label="单列"><svg viewBox="0 0 20 20"><rect x="5" y="3" width="10" height="14" rx="2"/></svg></button>
+          <button data-c="2" title="双列" aria-label="双列"><svg viewBox="0 0 20 20"><rect x="2.5" y="3" width="6.5" height="14" rx="2"/><rect x="11" y="3" width="6.5" height="14" rx="2"/></svg></button>
+          <button data-c="3" title="三列" aria-label="三列"><svg viewBox="0 0 20 20"><rect x="1.5" y="3" width="4.6" height="14" rx="1.6"/><rect x="7.7" y="3" width="4.6" height="14" rx="1.6"/><rect x="13.9" y="3" width="4.6" height="14" rx="1.6"/></svg></button>
+        </div>
+      </div>
+      <input class="search" type="search" id="q" placeholder="搜索博主或帖子内容" aria-label="搜索">
+    </section>
+    <div class="feed" id="feed"></div>
+  </main>
+  <aside class="side" id="timeline" aria-label="往期"></aside>
 </div>
-<button class="fab" id="tlBtn" aria-label="日期">日期</button>
+<button class="fab" id="tlBtn" aria-label="往期">往期</button>
 <div class="scrim" id="scrim"></div>
 <div class="modal" id="modal" hidden>
   <div class="sheet" role="dialog" aria-modal="true">
@@ -27,7 +34,7 @@
     <div class="tl" id="mb"></div>
   </div>
 </div>
-<footer id="foot">今日AI速报 · 只显示速报监听时段内的原创帖子（北京时间）</footer>
+<footer id="foot">今日AI速报 · 每期每位博主最多精选 2 条：只留 AI 趋势、新玩法和新研究（北京时间）</footer>
 <script src="data/kols.js"></script>
 <script src="common.js"></script>
 <script src="app-kol.js"></script>
