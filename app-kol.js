@@ -21,9 +21,7 @@
     var day = DAYS.filter(function (d) { return d.date === cur; })[0];
     document.getElementById('title').innerHTML = esc(md(cur)) + ' <span>博主动态</span>';
     document.getElementById('range').textContent = day ? '北京时间 ' + day.start + ' – ' + day.end + ' · ' + wk(cur) : '';
-    document.getElementById('dates').innerHTML = DAYS.map(function (d) {
-      return '<button data-d="' + d.date + '"' + (d.date === cur ? ' class="on"' : '') + '><b>' + short(d.date) + '</b><small>' + wk(d.date) + '</small></button>';
-    }).join('');
+    renderTimeline(DAYS.map(function (d) { return { date: d.date, on: d.date === cur, subs: [] }; }), function (date) { cur = date; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
     var ql = q.toLowerCase();
     var rows = K.map(function (k) { return { k: k, ps: postsOf(k) }; }).filter(function (r) {
       if (!r.ps.length) return false;
@@ -63,7 +61,6 @@
   }
   function close() { var m = document.getElementById('modal'); m.classList.remove('show'); document.body.classList.remove('lock'); setTimeout(function () { m.hidden = true; }, 200); }
   document.getElementById('list').addEventListener('click', function (e) { var b = e.target.closest('button[data-h]'); if (b) open(b.dataset.h); });
-  document.getElementById('dates').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) { cur = b.dataset.d; render(); } });
   document.getElementById('q').addEventListener('input', function (e) { q = e.target.value.trim(); render(); });
   document.getElementById('modal').addEventListener('click', function (e) { if (e.target.id === 'modal' || e.target.closest('.x')) close(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
