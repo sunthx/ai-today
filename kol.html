@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>今日AI速报 · KOL</title>
+<script src="theme.js"></script>
+<link rel="stylesheet" href="style.css"></head>
+<body>
+<header class="top"><div class="in">
+  <a class="brand" href="index.html"><i></i>今日AI速报</a>
+  <nav><a href="index.html">速报</a><a href="kol.html" class="on">KOL</a></nav>
+</div></header>
+<main class="wrap">
+  <section class="head">
+    <div class="eyebrow" id="range"></div>
+    <h1 id="title"></h1>
+    <input class="search" type="search" id="q" placeholder="搜索博主或帖子内容" aria-label="搜索">
+  </section>
+  <div class="dates" id="dates" aria-label="日期"></div>
+  <ul class="people" id="list"></ul>
+</main>
+<div class="modal" id="modal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true">
+    <div class="sheet-h" id="mh"></div>
+    <div class="tl" id="mb"></div>
+  </div>
+</div>
+<footer id="foot">今日AI速报 · 只显示速报监听时段内的原创帖子（北京时间）</footer>
+<script src="data/kols.js"></script>
+<script src="common.js"></script>
+<script src="app-kol.js"></script>
+</body></html>

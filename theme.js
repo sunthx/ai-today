@@ -1,0 +1,13 @@
+/* 主题跟随北京时间：06:00–18:00 亮色，其余暗色。每分钟检查一次。?theme=light|dark 可临时指定。 */
+(function () {
+  var force = (location.search.match(/[?&]theme=(light|dark)/) || [])[1];
+  function bjHour() { var d = new Date(); return (d.getUTCHours() + 8) % 24; }
+  function apply() {
+    var h = bjHour();
+    var t = force || (h >= 6 && h < 18 ? 'light' : 'dark');
+    if (document.documentElement.getAttribute('data-theme') !== t) document.documentElement.setAttribute('data-theme', t);
+  }
+  apply();
+  setInterval(apply, 60000);
+  document.addEventListener('visibilitychange', apply);
+})();
