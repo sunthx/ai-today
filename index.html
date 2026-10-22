@@ -1,8 +1,11 @@
 <!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>今日AI速报</title>
-<script src="theme.js"></script>
-<link rel="stylesheet" href="style.css"></head>
+<script src="theme.js?v=2610222129"></script>
+<link rel="stylesheet" href="style.css?v=2610222129">
+<script defer src="common.js?v=2610222129"></script>
+<script defer src="data/digest-index.js?v=2610222129"></script>
+<script defer src="app-index.js?v=2610222129"></script></head>
 <body class="page-index">
 <header class="top"><div class="in">
   <a class="brand" href="index.html"><i></i>今日AI速报</a>
@@ -11,9 +14,9 @@
 <div class="shell" id="shell">
   <main class="main">
     <section class="head">
-      <div class="eyebrow" id="range"></div>
+      <div class="eyebrow" id="range"><span class="sk sk-eye" aria-hidden="true"></span></div>
       <div class="headrow">
-        <h1 id="title"></h1>
+        <h1 id="title"><span class="sk sk-title" aria-hidden="true"></span></h1>
         <div class="cols" id="cols" role="radiogroup" aria-label="浏览模式">
           <button data-c="1" title="单列" aria-label="单列"><svg viewBox="0 0 20 20"><rect x="5" y="3" width="10" height="14" rx="2"/></svg></button>
           <button data-c="2" title="双列" aria-label="双列"><svg viewBox="0 0 20 20"><rect x="2.5" y="3" width="6.5" height="14" rx="2"/><rect x="11" y="3" width="6.5" height="14" rx="2"/></svg></button>
@@ -21,15 +24,13 @@
         </div>
       </div>
     </section>
-    <div class="feed" id="feed"></div>
+    <div class="feed loading" id="feed" aria-busy="true"><div class="col"><div class="sk-card"><span class="sk sk-k"></span><span class="sk sk-h"></span><span class="sk sk-l"></span><span class="sk sk-l"></span><span class="sk sk-l"></span><span class="sk sk-l s"></span><span class="sk sk-img"></span><span class="sk sk-f"></span></div><div class="sk-card"><span class="sk sk-k"></span><span class="sk sk-h"></span><span class="sk sk-l"></span><span class="sk sk-l"></span><span class="sk sk-l"></span><span class="sk sk-l s"></span><span class="sk sk-f"></span></div><div class="sk-card"><span class="sk sk-k"></span><span class="sk sk-h"></span><span class="sk sk-l"></span><span class="sk sk-l"></span><span class="sk sk-l"></span><span class="sk sk-l s"></span><span class="sk sk-img"></span><span class="sk sk-f"></span></div></div><div class="col"><div class="sk-card"><span class="sk sk-k"></span><span class="sk sk-h"></span><span class="sk sk-l"></span><span class="sk sk-l"></span><span class="sk sk-l"></span><span class="sk sk-l s"></span><span class="sk sk-f"></span></div><div class="sk-card"><span class="sk sk-k"></span><span class="sk sk-h"></span><span class="sk sk-l"></span><span class="sk sk-l"></span><span class="sk sk-l"></span><span class="sk sk-l s"></span><span class="sk sk-img"></span><span class="sk sk-f"></span></div><div class="sk-card"><span class="sk sk-k"></span><span class="sk sk-h"></span><span class="sk sk-l"></span><span class="sk sk-l"></span><span class="sk sk-l"></span><span class="sk sk-l s"></span><span class="sk sk-img"></span><span class="sk sk-f"></span></div></div><div class="col"><div class="sk-card"><span class="sk sk-k"></span><span class="sk sk-h"></span><span class="sk sk-l"></span><span class="sk sk-l"></span><span class="sk sk-l"></span><span class="sk sk-l s"></span><span class="sk sk-img"></span><span class="sk sk-f"></span></div><div class="sk-card"><span class="sk sk-k"></span><span class="sk sk-h"></span><span class="sk sk-l"></span><span class="sk sk-l"></span><span class="sk sk-l"></span><span class="sk sk-l s"></span><span class="sk sk-img"></span><span class="sk sk-f"></span></div><div class="sk-card"><span class="sk sk-k"></span><span class="sk sk-h"></span><span class="sk sk-l"></span><span class="sk sk-l"></span><span class="sk sk-l"></span><span class="sk sk-l s"></span><span class="sk sk-f"></span></div></div></div>
+    <div class="more" id="more" hidden><div class="feed more-sk" aria-hidden="true"></div><button class="more-btn" type="button">加载更多</button></div>
     <p class="note" id="extra"></p>
   </main>
-  <aside class="side" id="timeline" aria-label="往期速报"></aside>
+  <aside class="side" id="timeline" aria-label="往期速报"><div class="tl-title">往期</div><div class="sk-tl"><span class="sk"></span><span class="sk s"></span><span class="sk s"></span><span class="sk"></span><span class="sk s"></span></div></aside>
 </div>
 <button class="fab" id="tlBtn" aria-label="往期">往期</button>
 <div class="scrim" id="scrim"></div>
 <footer id="foot"></footer>
-<script src="data/digests.js"></script>
-<script src="common.js"></script>
-<script src="app-index.js"></script>
 </body></html>

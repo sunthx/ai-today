@@ -11,3 +11,11 @@
   setInterval(apply, 60000);
   document.addEventListener('visibilitychange', apply);
 })();
+/* 首屏前先定好列数（骨架屏和版心宽度就不会跳） */
+(function () {
+  try {
+    var m = location.search.match(/[?&]cols=([123])/), w = +(m ? m[1] : localStorage.getItem('aitoday.cols')) || 1, vw = window.innerWidth;
+    if ([1, 2, 3].indexOf(w) < 0) w = 1;
+    document.documentElement.setAttribute('data-cols', vw < 700 ? 1 : (vw < 1100 ? Math.min(w, 2) : w));
+  } catch (e) { document.documentElement.setAttribute('data-cols', 1); }
+})();

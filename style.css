@@ -1,16 +1,16 @@
 /* 今日AI速报 · 简约主题：白天亮色 / 晚上暗色（由 theme.js 按北京时间切换） */
 :root { --mw: 760px; }
-body[data-cols="2"] { --mw: 1040px; }
-body[data-cols="3"] { --mw: 1300px; }
+html[data-cols="2"] { --mw: 1040px; }
+html[data-cols="3"] { --mw: 1300px; }
 :root, [data-theme="light"] {
   --bg: #f5f6fa; --bg2: #eef0f7; --card: #ffffff; --text: #0e1220; --text2: #3b4256; --muted: #7a8296;
   --line: rgba(14, 18, 32, .08); --chip: rgba(14, 18, 32, .05); --shadow: 0 1px 2px rgba(14, 18, 32, .04), 0 8px 28px rgba(14, 18, 32, .06);
-  --a1: #5b5bf7; --a2: #e0488b; --link: #1d9bf0; --glow: rgba(91, 91, 247, .10); --shine: rgba(255, 255, 255, .75);
+  --a1: #5b5bf7; --a2: #e0488b; --link: #1d9bf0; --glow: rgba(91, 91, 247, .10); --shine: rgba(255, 255, 255, .75); --skb: rgba(14, 18, 32, .075);
 }
 [data-theme="dark"] {
   --bg: #0a0c12; --bg2: #10131c; --card: #141823; --text: #eef0f6; --text2: #c3c8d6; --muted: #7d8599;
   --line: rgba(255, 255, 255, .07); --chip: rgba(255, 255, 255, .06); --shadow: 0 1px 0 rgba(255, 255, 255, .03) inset, 0 10px 30px rgba(0, 0, 0, .35);
-  --a1: #8b8bff; --a2: #ff6fae; --link: #4cb3ff; --glow: rgba(139, 139, 255, .12); --shine: rgba(255, 255, 255, .06);
+  --a1: #8b8bff; --a2: #ff6fae; --link: #4cb3ff; --glow: rgba(139, 139, 255, .12); --shine: rgba(255, 255, 255, .06); --skb: rgba(255, 255, 255, .07);
 }
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
@@ -245,3 +245,42 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 10px
 .xcard .more { border: 0; background: none; padding: 2px 0 0; color: var(--link); font-size: 13.5px; }
 .xcard .more:hover { text-decoration: underline; text-underline-offset: 3px; }
 .card figure .pic.err { aspect-ratio: auto !important; height: 132px; }
+
+/* ---------- 骨架屏：首屏（写在 HTML 里，JS/数据还没到就能看到）和切换期次时 ---------- */
+.sk { display: block; border-radius: 8px; background-color: var(--skb);
+  background-image: linear-gradient(100deg, transparent 20%, var(--shine) 50%, transparent 80%); background-size: 220% 100%; animation: shimmer 1.5s linear infinite; }
+.sk-card { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 24px 26px 18px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 11px; }
+.sk-k { width: 64px; height: 22px; }
+.sk-h { width: 62%; height: 24px; margin-bottom: 4px; }
+.sk-l { width: 100%; height: 13px; }
+.sk-l.s { width: 58%; }
+.sk-img { width: 100%; aspect-ratio: 16 / 10; border-radius: 16px; margin-top: 4px; }
+.sk-f { width: 38%; height: 12px; margin-top: 6px; }
+.sk-x { border-radius: 20px; padding: 18px; }
+.sk-x .sk-l, .sk-x .sk-chip, .sk-x .sk-img, .sk-x .sk-f { margin-left: 52px; width: calc(100% - 52px); }
+.sk-x .sk-l.s { width: calc(58% - 30px); }
+.sk-x .sk-f { width: 46%; }
+.sk-row { display: flex; align-items: center; gap: 12px; }
+.sk-av { width: 40px; height: 40px; border-radius: 50%; flex: 0 0 auto; }
+.sk-name { width: 46%; height: 14px; }
+.sk-x .sk-chip { width: 34% !important; height: 20px; border-radius: 999px; }
+.sk-title { display: inline-block; width: 260px; max-width: 70%; height: 40px; border-radius: 12px; vertical-align: middle; }
+.sk-eye { display: inline-block; width: 220px; height: 12px; }
+.sk-tl { display: flex; flex-direction: column; gap: 14px; padding-left: 26px; }
+.sk-tl .sk { width: 90px; height: 16px; } .sk-tl .sk.s { width: 70px; height: 12px; margin-left: 14px; }
+.feed.loading .col { gap: 18px; }
+/* 首屏还不知道列数时按 html[data-cols] 显示对应数量的骨架列 */
+html[data-cols="1"] .feed.loading .col:nth-child(n+2), html[data-cols="2"] .feed.loading .col:nth-child(n+3) { display: none; }
+html[data-cols="1"] .more-sk .col:nth-child(n+2), html[data-cols="2"] .more-sk .col:nth-child(n+3) { display: none; }
+.sk-modal { display: flex; flex-direction: column; gap: 12px; padding: 14px; }
+.sk-modal .sk-card { box-shadow: none; }
+/* 底部：下一批加载中 + 加载更多按钮 */
+.more { margin-top: 18px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.more[hidden] { display: none; }
+.more-sk { width: 100%; }
+.more-sk .sk-card .sk-l:nth-of-type(n+5), .more-sk .sk-img { display: none; }
+.more-btn { border: 1px solid var(--line); background: var(--card); color: var(--text2); padding: 9px 22px; border-radius: 999px; font-size: 14px; box-shadow: var(--shadow); transition: all .2s; }
+.more-btn:hover { color: var(--a1); border-color: color-mix(in srgb, var(--a1) 40%, var(--line)); }
+@media (max-width: 600px) { .sk-card { padding: 20px 18px 16px; border-radius: 18px; } .sk-title { height: 30px; } }
+.head h1 .sk-title { color: transparent; -webkit-background-clip: border-box; background-clip: border-box; background-color: var(--skb);
+  background-image: linear-gradient(100deg, transparent 20%, var(--shine) 50%, transparent 80%); background-size: 220% 100%; }
