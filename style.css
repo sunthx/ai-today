@@ -284,3 +284,86 @@ html[data-cols="1"] .more-sk .col:nth-child(n+2), html[data-cols="2"] .more-sk .
 @media (max-width: 600px) { .sk-card { padding: 20px 18px 16px; border-radius: 18px; } .sk-title { height: 30px; } }
 .head h1 .sk-title { color: transparent; -webkit-background-clip: border-box; background-clip: border-box; background-color: var(--skb);
   background-image: linear-gradient(100deg, transparent 20%, var(--shine) 50%, transparent 80%); background-size: 220% 100%; }
+
+/* ---------- 擂台：本期热度前三（金牌居中抬高、银牌左、铜牌右；窄了就竖排） ---------- */
+:root, [data-theme="light"] {
+  --gold: linear-gradient(135deg, #fbe7a1 0%, #e0b23a 38%, #fff1bd 55%, #c8901a 100%);
+  --silver: linear-gradient(135deg, #f4f6fa 0%, #b9c0cc 40%, #ffffff 56%, #969fad 100%);
+  --bronze: linear-gradient(135deg, #f6cfaa 0%, #c07a45 40%, #f3c49a 56%, #9a5a2c 100%);
+  --gold-c: #b8860b; --silver-c: #7c8594; --bronze-c: #a5612f;
+  --gold-glow: rgba(224, 178, 58, .22); --silver-glow: rgba(150, 159, 173, .18); --bronze-glow: rgba(192, 122, 69, .18);
+}
+[data-theme="dark"] {
+  --gold-c: #f2c94c; --silver-c: #c9d0db; --bronze-c: #e3a271;
+  --gold-glow: rgba(242, 201, 76, .16); --silver-glow: rgba(201, 208, 219, .10); --bronze-glow: rgba(227, 162, 113, .12);
+}
+.main { container-type: inline-size; }
+.podium { margin: 0 0 8px; }
+.podium[hidden], .rest-h[hidden] { display: none; }
+.pd-title { display: flex; align-items: baseline; gap: 10px; margin: 0 0 14px; }
+.pd-title b { font-size: 15px; letter-spacing: 1px; }
+.pd-title span { font-size: 12.5px; color: var(--muted); }
+.pd-row { display: flex; flex-direction: column; gap: 16px; }
+.pd { display: flex; flex-direction: column; min-width: 0; }
+.pd-card { position: relative; flex: 1; background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 24px 26px 18px;
+  box-shadow: var(--shadow), 0 14px 40px var(--pg, transparent); overflow: hidden; animation: rise .5s both; }
+.pd-card::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 4px; background: var(--pm); }
+.pd-gold { --pm: var(--gold); --pc: var(--gold-c); --pg: var(--gold-glow); }
+.pd-silver { --pm: var(--silver); --pc: var(--silver-c); --pg: var(--silver-glow); }
+.pd-bronze { --pm: var(--bronze); --pc: var(--bronze-c); --pg: var(--bronze-glow); }
+.pd-gold .pd-card { border-color: color-mix(in srgb, var(--gold-c) 35%, var(--line)); }
+.pd-medal { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.pd-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px 4px 9px; border-radius: 999px; font-size: 13px; font-weight: 800; letter-spacing: 1px;
+  color: #2a1d00; background: var(--pm); box-shadow: 0 2px 8px var(--pg), inset 0 1px 0 rgba(255, 255, 255, .6); }
+.pd-silver .pd-badge { color: #252a33; } .pd-bronze .pd-badge { color: #2e1606; }
+.pd-medal .e { font-size: 24px; line-height: 1; }
+.pd-card h2 { margin: 0 0 12px; font-size: 24px; line-height: 1.35; font-weight: 800; letter-spacing: -.3px; }
+.pd-gold .pd-card h2 { font-size: 27px; }
+.pd-card figure { margin: 0 0 14px; border-radius: 16px; overflow: hidden; border: 1px solid var(--line); background: var(--bg2); }
+.pd-card figure .pic { display: block; width: 100%; border-radius: 0; }
+.pd-card figure .pic.ok img { cursor: zoom-in; }
+.pd-card p { margin: 0; color: var(--text2); font-size: 15.5px; line-height: 1.85; }
+.pd-card .src { margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--line); display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 13px; color: var(--muted); }
+.pd-card .src .who { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.pd-card .src em { font-style: normal; opacity: .8; }
+.pd-card .src a { flex: 0 0 auto; font-weight: 700; color: var(--pc); }
+.pd-step { display: none; }
+.rest-h { display: flex; align-items: center; gap: 12px; margin: 26px 0 16px; color: var(--muted); font-size: 13px; letter-spacing: 2px; }
+.rest-h::before, .rest-h::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+/* 够宽（约 860px 以上）才摆成领奖台 */
+@container (min-width: 860px) {
+  .pd-row { flex-direction: row; align-items: stretch; gap: 16px; }
+  .pd { flex: 1 1 0; }
+  .pd-gold { order: 2; flex-grow: 1.18; }
+  .pd-silver { order: 1; padding-top: 40px; }
+  .pd-bronze { order: 3; padding-top: 64px; }
+  .pd-card { border-bottom-left-radius: 14px; border-bottom-right-radius: 14px; }
+  .pd-card p { font-size: 14.5px; line-height: 1.8; }
+  .pd-card h2 { font-size: 21px; } .pd-gold .pd-card h2 { font-size: 24px; }
+  .pd-step { display: flex; align-items: center; justify-content: center; margin: 8px 10px 0; border-radius: 12px 12px 6px 6px; background: var(--pm);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .55), 0 8px 20px var(--pg); color: rgba(0, 0, 0, .55); font: 800 18px/1 ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .pd-gold .pd-step { height: 64px; font-size: 24px; }
+  .pd-silver .pd-step { height: 46px; }
+  .pd-bronze .pd-step { height: 28px; font-size: 15px; }
+  .pd-sk .pd-step { background: var(--skb); box-shadow: none; }
+  .pd-gold .pd-card { padding-top: 26px; }
+}
+/* 擂台骨架 */
+.pd-sk .pd-card { display: flex; flex-direction: column; gap: 11px; animation: none; box-shadow: var(--shadow); }
+.pd-sk .pd-card::before { background: var(--skb); }
+.sk-medal { width: 86px; height: 26px; border-radius: 999px; }
+.pd-sk .sk-h { width: 80%; height: 24px; } .pd-sk .sk-h.s { width: 52%; }
+.podium.loading .pd-title { opacity: .6; }
+@media (max-width: 600px) { .pd-card { padding: 20px 18px 16px; border-radius: 18px; } .pd-card h2 { font-size: 20px; } .pd-gold .pd-card h2 { font-size: 22px; } }
+.pd-card { display: flex; flex-direction: column; }
+.pd-card .src { margin-top: auto; } .pd-card p { margin-bottom: 14px; }
+.pd-card figure.noimg { aspect-ratio: 1.6; display: grid; place-items: center; border-color: transparent;
+  background: radial-gradient(circle at 30% 20%, color-mix(in srgb, var(--pc) 22%, transparent), transparent 60%), radial-gradient(circle at 80% 90%, color-mix(in srgb, var(--pc) 14%, transparent), transparent 55%), var(--bg2); }
+.pd-card figure.noimg span { font-size: 64px; line-height: 1; filter: drop-shadow(0 8px 18px var(--pg)); }
+.pd-card figure.noimg { display: none; }
+.pd-card figure .pic { aspect-ratio: 2 !important; }
+@container (min-width: 860px) {
+  .pd-card figure.noimg { display: grid; }
+  .pd-card figure .pic { aspect-ratio: 1.6 !important; }
+}
+@container (max-width: 859px) { .pd-silver .pd-card h2, .pd-bronze .pd-card h2 { font-size: 20px; } }

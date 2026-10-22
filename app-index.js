@@ -20,11 +20,47 @@
       (it.img ? '<figure data-full="' + esc(it.img) + '">' + pic(it.ti || it.img, r, '', i < n) + '</figure>' : '') +
       '<div class="src">' + who + (it.u ? '<a href="' + esc(it.u) + '" target="_blank" rel="noopener">查看原帖 ↗</a>' : '') + '</div></article>';
   }
+  // 擂台：前三名（有 rank 字段就按 rank 排，否则按原顺序 = 热度排名）
+  var MEDAL = [['gold', '🥇', '金牌'], ['silver', '🥈', '银牌'], ['bronze', '🥉', '铜牌']];
+  function ranked(items) {
+    var has = items.some(function (it) { return typeof it.rank === 'number'; });
+    if (!has) return items;
+    return items.map(function (it, i) { return { it: it, i: i }; }).sort(function (a, b) {
+      var ra = typeof a.it.rank === 'number' ? a.it.rank : 1e9 + a.i, rb = typeof b.it.rank === 'number' ? b.it.rank : 1e9 + b.i; return ra - rb;
+    }).map(function (x) { return x.it; });
+  }
+  function podCard(it, k) {
+    var m = MEDAL[k], who = it.a ? '<span class="who">' + esc(it.a.n) + ' <em>@' + esc(it.a.h) + '</em></span>' : '<span class="who"></span>';
+    return '<div class="pd pd-' + m[0] + '"><article class="pd-card">' +
+      '<div class="pd-medal"><span class="pd-badge">' + m[1] + ' ' + m[2] + '</span><span class="e">' + esc(it.e) + '</span></div>' +
+      '<h2>' + esc(it.h) + '</h2>' +
+      (it.img ? '<figure data-full="' + esc(it.img) + '">' + pic(it.ti || it.img, 1.6, '', true) + '</figure>' : '<figure class="noimg" aria-hidden="true"><span>' + esc(it.e) + '</span></figure>') +
+      '<p>' + esc(it.d || it.t) + '</p>' +
+      '<div class="src">' + who + (it.u ? '<a href="' + esc(it.u) + '" target="_blank" rel="noopener">查看原帖 ↗</a>' : '') + '</div>' +
+      '</article><div class="pd-step"><span>' + (k + 1) + '</span></div></div>';
+  }
+  function podSkel() {
+    return '<div class="pd-title"><b>🏆 本期擂台</b><span>热度前三</span></div><div class="pd-row">' + ['gold', 'silver', 'bronze'].map(function (m) {
+      return '<div class="pd pd-' + m + ' pd-sk"><div class="pd-card"><span class="sk sk-medal"></span><span class="sk sk-h"></span><span class="sk sk-h s"></span><span class="sk sk-l"></span><span class="sk sk-l"></span><span class="sk sk-l"></span><span class="sk sk-l s"></span><span class="sk sk-img"></span><span class="sk sk-f"></span></div><div class="pd-step"></div></div>';
+    }).join('') + '</div>';
+  }
+  function drawPodium(items) {
+    var box = document.getElementById('podium'), rh = document.getElementById('restH');
+    if (!items) { box.hidden = false; box.className = 'podium loading'; box.innerHTML = podSkel(); rh.hidden = false; return; }
+    var top = items.slice(0, 3);
+    box.hidden = !top.length; rh.hidden = items.length <= 3;
+    box.className = 'podium n' + top.length;
+    box.innerHTML = '<div class="pd-title"><b>🏆 本期擂台</b><span>热度前三</span></div><div class="pd-row">' + top.map(podCard).join('') + '</div>';
+    wirePics(box);
+  }
   var layout = setupCols(function (n) {
     var feed = document.getElementById('feed');
-    if (!data) { showSkeleton('card'); return; }
-    if (!data.items || !data.items.length) { feed.classList.remove('loading'); feed.innerHTML = '<div class="empty">这一期还没有内容</div>'; document.getElementById('more').hidden = true; return; }
-    pagedMasonry(feed, data.items.map(function (it, i) { return cardHtml(it, i, n); }), n, { kind: 'card', batch: n === 1 ? 5 : n * 3 });
+    if (!data) { drawPodium(null); showSkeleton('card'); return; }
+    var items = ranked(data.items || []);
+    drawPodium(items);
+    var rest = items.slice(3);
+    if (!rest.length) { feed.classList.remove('loading'); feed.innerHTML = items.length ? '' : '<div class="empty">这一期还没有内容</div>'; document.getElementById('more').hidden = true; return; }
+    pagedMasonry(feed, rest.map(function (it, i) { return cardHtml(it, i + 3, n); }), n, { kind: 'card', batch: n === 1 ? 5 : n * 3 });
   });
   function head() {
     var d = find(cur.date, cur.kind)[0];
@@ -61,8 +97,10 @@
     document.getElementById('extra').textContent = data && data.extra ? data.extra : '';
     layout(true);
   }
-  document.getElementById('feed').addEventListener('click', function (e) {
-    var f = e.target.closest('figure[data-full]'); if (f && f.querySelector('.pic.ok')) window.open(f.dataset.full, '_blank');
+  ['feed', 'podium'].forEach(function (id) {
+    document.getElementById(id).addEventListener('click', function (e) {
+      var f = e.target.closest('figure[data-full]'); if (f && f.querySelector('.pic.ok')) window.open(f.dataset.full, '_blank');
+    });
   });
   document.getElementById('foot').textContent = '今日AI速报 · 每天 09:00 / 18:00（北京时间）更新' + (AIT.info ? ' · 数据 ' + AIT.info.built : '');
   go();
