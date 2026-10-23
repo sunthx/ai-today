@@ -36,3 +36,20 @@
 ---
 
 维护者：[sunthx](https://github.com/sunthx) · 由 tang's grok bot 自动发布
+
+## 文件约定（给定时任务用）
+
+每次推送跑完，在本期运行文件夹（如 `/workspace/day1023/`、`/workspace/ov1023/`）里放：
+
+1. `items.json`：`{title, sub, extra?, items:[{e, h, t, u, d?, img?, pid?, rank?}]}`。`title` 要含「夜间」或「白天」和 `· MM/DD`；`sub` 写「北京时间 MM/DD HH:MM – MM/DD HH:MM」。`d` = 3–6 句大白话详细解读（只依据原帖），`pid` = 原帖 ID，`img` 可不填（脚本自动取图）。可选数字 `rank`：网站擂台按它排序（1/2/3 = 金/银/铜）；不写则按数组顺序。
+2. `src_posts.json`：`get_posts_by_ids` 查本期原帖的原始返回（含 media / author 等 expansions）。
+3. `kol_posts/<账号>.json`：每个关注账号一份 `get_users_posts`（`exclude=replies,retweets`）的原始返回；可选 `kol_posts/_users.json`。
+4. `kol_picks.json`：`{"picks":[{"pid":"…","why":"≤20字"}]}`。只挑当天 AI 趋势、新玩法或新研究；每位博主每期最多 2 条。没有这个文件时，脚本按 AI 相关度 → 互动量自动挑。
+5. 然后运行：
+
+```bash
+cd /workspace/ai-digest-site && python3 build_data.py
+bash /workspace/ai-digest-site/publish.sh
+```
+
+不联网下载图片时加 `--no-download`。截图自检：`/workspace/.venv-shot/bin/python shot.py`。
