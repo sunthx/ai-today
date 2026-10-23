@@ -35,7 +35,7 @@
 
 ---
 
-维护者：[sunthx](https://github.com/sunthx) · 由 tang's grok bot 自动发布
+维护者：[sunthx](https://github.com/sunthx) · 自动发布
 
 ## 文件约定（给定时任务用）
 
