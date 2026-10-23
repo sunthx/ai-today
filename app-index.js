@@ -34,14 +34,14 @@
     return '<div class="pd pd-' + m[0] + '"><article class="pd-card">' +
       '<div class="pd-medal"><span class="pd-badge">' + m[1] + ' ' + m[2] + '</span><span class="e">' + esc(it.e) + '</span></div>' +
       '<h2>' + esc(it.h) + '</h2>' +
-      (it.img ? '<figure data-full="' + esc(it.img) + '">' + pic(it.ti || it.img, 1.6, '', true) + '</figure>' : '<figure class="noimg" aria-hidden="true"><span>' + esc(it.e) + '</span></figure>') +
+      (it.img ? '<figure data-full="' + esc(it.img) + '">' + pic(it.ti || it.img, 1.6, '', true) + '</figure>' : '<figure class="noimg" aria-hidden="true"><span>' + esc(it.e || '✨') + '</span></figure>') +
       '<p>' + esc(it.d || it.t) + '</p>' +
       '<div class="src">' + who + (it.u ? '<a href="' + esc(it.u) + '" target="_blank" rel="noopener">查看原帖 ↗</a>' : '') + '</div>' +
-      '</article><div class="pd-step"><span>' + (k + 1) + '</span></div></div>';
+      '</article><div class="pd-step" aria-hidden="true"><span>' + (k + 1) + '</span></div></div>';
   }
   function podSkel() {
-    return '<div class="pd-title"><b>🏆 本期擂台</b><span>热度前三</span></div><div class="pd-row">' + ['gold', 'silver', 'bronze'].map(function (m) {
-      return '<div class="pd pd-' + m + ' pd-sk"><div class="pd-card"><span class="sk sk-medal"></span><span class="sk sk-h"></span><span class="sk sk-h s"></span><span class="sk sk-l"></span><span class="sk sk-l"></span><span class="sk sk-l"></span><span class="sk sk-l s"></span><span class="sk sk-img"></span><span class="sk sk-f"></span></div><div class="pd-step"></div></div>';
+    return '<div class="pd-title"><b>🏆 本期擂台</b><span>热度前三</span></div><div class="pd-row">' + ['gold', 'silver', 'bronze'].map(function (m, i) {
+      return '<div class="pd pd-' + m + ' pd-sk"><div class="pd-card"><span class="sk sk-medal"></span><span class="sk sk-h"></span><span class="sk sk-h s"></span><span class="sk sk-img"></span><span class="sk sk-l"></span><span class="sk sk-l"></span><span class="sk sk-l s"></span><span class="sk sk-f"></span></div><div class="pd-step"><span>' + (i + 1) + '</span></div></div>';
     }).join('') + '</div>';
   }
   function drawPodium(items) {
