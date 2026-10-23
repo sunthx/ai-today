@@ -437,3 +437,24 @@ html[data-cols="1"] .more-sk .col:nth-child(n+2), html[data-cols="2"] .more-sk .
   .pd-card figure { height: 140px; }
   .pd-card p { font-size: 13px; }
 }
+
+/* 查看原帖按钮（站内，不跳转） */
+.card .src .op, .pd-card .src .op { appearance: none; border: 0; background: none; flex: 0 0 auto; color: var(--a1); font: inherit; font-weight: 600; font-size: inherit; padding: 0; cursor: pointer; }
+.pd-card .src .op { font-weight: 700; color: var(--pc); }
+.ta .op { appearance: none; border: 1px solid var(--line); background: transparent; color: var(--muted);
+  font: inherit; font-size: 12px; padding: 1px 10px; border-radius: 999px; cursor: pointer; }
+.card .src .op:hover, .pd-card .src .op:hover, .ta .op:hover { color: var(--link); }
+.ta .op:hover { border-color: color-mix(in srgb, var(--link) 40%, var(--line)); }
+.media .mi { border: 0; padding: 0; cursor: pointer; width: 100%; height: 100%; text-align: left; color: inherit; font: inherit; }
+.media span.mi { cursor: default; }
+
+/* 原帖详情弹层 */
+.tweet-modal .tw-detail { border-bottom: 0; padding: 18px 20px 24px; }
+.tweet-modal .tw-detail .tav { width: 48px; height: 48px; }
+.tweet-modal .tw-detail .tt { font-size: 17px; line-height: 1.65; margin-top: 8px; }
+.tweet-modal .tw-detail .ta { max-width: none; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
+.tweet-modal .tw-time { margin-top: 14px; color: var(--muted); font-size: 13px; }
+.tw-empty { padding: 48px 28px; text-align: center; }
+.tw-empty b { display: block; font-size: 17px; margin-bottom: 8px; }
+.tw-empty p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.7; }
+body.lock { overflow: hidden; }

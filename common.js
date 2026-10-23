@@ -159,3 +159,81 @@ function wirePics(root) {
 }
 document.addEventListener('load', function (e) { if (e.target.tagName === 'IMG') picDone(e.target); }, true);
 document.addEventListener('error', function (e) { if (e.target.tagName === 'IMG') picDone(e.target); }, true);
+
+/* ---------- 站内原帖查看器（X 风格，不跳转外链） ---------- */
+var TW_ICON = {
+  r: '<svg viewBox="0 0 24 24"><path d="M1.75 10c0-4.42 3.58-8 8-8h4.37c4.47 0 8.13 3.62 8.13 8.1 0 2.95-1.6 5.66-4.18 7.08L10 21.5v-3.75h-.25c-4.42 0-8-3.58-8-7.75zm8-6c-3.31 0-6 2.69-6 6 0 3.36 2.73 5.75 6.07 5.75H12v2.4l5.12-2.83c1.95-1.07 3.13-3.1 3.13-5.32 0-3.37-2.75-6-6.13-6H9.75z"/></svg>',
+  rt: '<svg viewBox="0 0 24 24"><path d="M4.5 3.88l4.43 4.14-1.37 1.46L5.5 7.55V16c0 1.1.9 2 2 2H13v2H7.5c-2.21 0-4-1.79-4-4V7.55L1.44 9.48.07 8.02 4.5 3.88zM16.5 6H11V4h5.5c2.21 0 4 1.79 4 4v8.45l2.06-1.93 1.37 1.46-4.43 4.14-4.43-4.14 1.37-1.46 2.06 1.93V8c0-1.1-.9-2-2-2z"/></svg>',
+  l: '<svg viewBox="0 0 24 24"><path d="M16.7 3.5c-1.98 0-3.6 1.04-4.7 2.62C10.9 4.54 9.28 3.5 7.3 3.5 4.34 3.5 2 5.93 2 9.03c0 5.31 6.46 9.73 9.5 11.47.31.18.69.18 1 0C15.54 18.76 22 14.34 22 9.03 22 5.93 19.66 3.5 16.7 3.5zm-4.7 15c-3.27-1.98-8-5.66-8-9.47C4 7.04 5.47 5.5 7.3 5.5c1.64 0 2.94 1.14 3.75 2.86h1.9C13.76 6.64 15.06 5.5 16.7 5.5c1.83 0 3.3 1.54 3.3 3.53 0 3.81-4.73 7.49-8 9.47z"/></svg>',
+  v: '<svg viewBox="0 0 24 24"><path d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21l.004-10h2L6 21H4zm9.248 0v-7h2v7h-2z"/></svg>'
+};
+function twNum(n) { n = +n || 0; if (n >= 1e8) return (n / 1e8).toFixed(1).replace(/\.0$/, '') + '亿'; if (n >= 1e4) return (n / 1e4).toFixed(1).replace(/\.0$/, '') + '万'; return n ? String(n) : ''; }
+function twRich(t) {
+  return esc(t || '').replace(/\[\[([^|\]]+)\|([^\]]+)\]\]/g, function (_, u, d) {
+    if (/^https?:\/\/(www\.)?(x\.com|twitter\.com)\b/i.test(u)) return esc(d);
+    return '<a href="' + u + '" target="_blank" rel="noopener">' + d + '</a>';
+  }).replace(/(^|[^\w@])@(\w{1,15})/g, '$1<span class="at">@$2</span>')
+    .replace(/(^|\s)#([^\s#]+)/g, '$1<span class="at">#$2</span>');
+}
+function twAv(a, cls) {
+  a = a || {};
+  return a.av ? pic(a.av, 1, cls, true) : '<span class="' + cls + ' ph">' + esc((a.n || a.h || '?').slice(0, 1)) + '</span>';
+}
+function twMedia(m) {
+  m = m || [];
+  if (!m.length) return '';
+  var one = m.length === 1, r = one && m[0].w && m[0].h ? Math.min(2, Math.max(0.8, m[0].w / m[0].h)) : 0;
+  return '<div class="media n' + Math.min(m.length, 4) + '">' + m.slice(0, 4).map(function (x) {
+    // 图片点开看本地原图；视频只展示封面，不跳转 X
+    var inner = pic(x.t || x.src, one ? (r || 1.6) : 0);
+    if (x.type === 'photo' && x.src) return '<button type="button" class="mi" data-full="' + esc(x.src) + '">' + inner + '</button>';
+    return '<span class="mi' + (x.type !== 'photo' ? ' vid' : '') + '">' + inner + '</span>';
+  }).join('') + '</div>';
+}
+function twMetrics(pm) {
+  pm = pm || [0, 0, 0, 0];
+  return '<div class="ta"><span>' + TW_ICON.r + twNum(pm[0]) + '</span><span>' + TW_ICON.rt + twNum(pm[1]) + '</span><span>' + TW_ICON.l + twNum(pm[2]) + '</span><span>' + TW_ICON.v + twNum(pm[3]) + '</span></div>';
+}
+function ensureTweetModal() {
+  var m = document.getElementById('tweetModal');
+  if (m) return m;
+  m = document.createElement('div');
+  m.id = 'tweetModal'; m.className = 'modal tweet-modal'; m.hidden = true;
+  m.innerHTML = '<div class="sheet" role="dialog" aria-modal="true" aria-label="原帖">' +
+    '<div class="sheet-h" id="tweetMh"><div><b>原帖</b><em>离线存档</em></div><button type="button" class="x" aria-label="关闭">×</button></div>' +
+    '<div class="tl" id="tweetMb"></div></div>';
+  document.body.appendChild(m);
+  m.addEventListener('click', function (e) {
+    if (e.target.id === 'tweetModal' || e.target.closest('.x')) closeTweetViewer();
+    var f = e.target.closest('[data-full]'); if (f && f.dataset.full) window.open(f.dataset.full, '_blank');
+  });
+  if (!ensureTweetModal._esc) {
+    ensureTweetModal._esc = 1;
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeTweetViewer(); });
+  }
+  return m;
+}
+function closeTweetViewer() {
+  var m = document.getElementById('tweetModal'); if (!m || m.hidden) return;
+  m.classList.remove('show'); document.body.classList.remove('lock');
+  setTimeout(function () { m.hidden = true; }, 200);
+}
+function openTweetViewer(post) {
+  var m = ensureTweetModal(), mb = document.getElementById('tweetMb'), mh = document.getElementById('tweetMh');
+  m.hidden = false; document.body.classList.add('lock');
+  requestAnimationFrame(function () { m.classList.add('show'); });
+  mh.innerHTML = '<div><b>原帖</b><em>离线存档 · 不跳转 X</em></div><button type="button" class="x" aria-label="关闭">×</button>';
+  mb.scrollTop = 0;
+  if (!post || !post.t) {
+    mb.innerHTML = '<div class="tw-empty"><b>这条原帖还没存下来</b><p>本期速报里暂时没有离线正文，稍后再来看看。</p></div>';
+    return;
+  }
+  var a = post.a || {};
+  var ts = post.ts ? (post.ts.slice(5, 10).replace('-', '/') + ' ' + post.ts.slice(11, 16)) : '';
+  mb.innerHTML = '<article class="tw tw-detail">' + twAv(a, 'tav') + '<div class="tb">' +
+    '<div class="th"><b>' + esc(a.n || a.h || '未知作者') + '</b><span>@' + esc(a.h || '') + '</span></div>' +
+    '<div class="tt">' + twRich(post.t) + '</div>' + twMedia(post.m) +
+    (ts ? '<div class="tw-time">' + esc(ts) + ' · 北京时间</div>' : '') +
+    twMetrics(post.pm) + '</div></article>';
+  wirePics(m);
+}

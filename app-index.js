@@ -18,7 +18,7 @@
       '<h2>' + esc(it.h) + '</h2>' +
       '<p>' + esc(it.d || it.t) + '</p>' +
       (it.img ? '<figure data-full="' + esc(it.img) + '">' + pic(it.ti || it.img, r, '', i < n) + '</figure>' : '') +
-      '<div class="src">' + who + (it.u ? '<a href="' + esc(it.u) + '" target="_blank" rel="noopener">查看原帖 ↗</a>' : '') + '</div></article>';
+      '<div class="src">' + who + (it.u || it.post ? '<button type="button" class="op" data-i="' + i + '">查看原帖</button>' : '') + '</div></article>';
   }
   // 擂台：前三名（有 rank 字段就按 rank 排，否则按原顺序 = 热度排名）
   var MEDAL = [['gold', '🥇', '金牌'], ['silver', '🥈', '银牌'], ['bronze', '🥉', '铜牌']];
@@ -29,14 +29,14 @@
       var ra = typeof a.it.rank === 'number' ? a.it.rank : 1e9 + a.i, rb = typeof b.it.rank === 'number' ? b.it.rank : 1e9 + b.i; return ra - rb;
     }).map(function (x) { return x.it; });
   }
-  function podCard(it, k) {
+  function podCard(it, k, absI) {
     var m = MEDAL[k], who = it.a ? '<span class="who">' + esc(it.a.n) + ' <em>@' + esc(it.a.h) + '</em></span>' : '<span class="who"></span>';
     return '<div class="pd pd-' + m[0] + '"><article class="pd-card">' +
       '<div class="pd-medal"><span class="pd-badge">' + m[1] + ' ' + m[2] + '</span><span class="e">' + esc(it.e) + '</span></div>' +
       '<h2>' + esc(it.h) + '</h2>' +
       (it.img ? '<figure data-full="' + esc(it.img) + '">' + pic(it.ti || it.img, 1.6, '', true) + '</figure>' : '<figure class="noimg" aria-hidden="true"><span>' + esc(it.e || '✨') + '</span></figure>') +
       '<p>' + esc(it.d || it.t) + '</p>' +
-      '<div class="src">' + who + (it.u ? '<a href="' + esc(it.u) + '" target="_blank" rel="noopener">查看原帖 ↗</a>' : '') + '</div>' +
+      '<div class="src">' + who + (it.u || it.post ? '<button type="button" class="op" data-i="' + absI + '">查看原帖</button>' : '') + '</div>' +
       '</article><div class="pd-step" aria-hidden="true"><span>' + (k + 1) + '</span></div></div>';
   }
   function podSkel() {
@@ -50,7 +50,7 @@
     var top = items.slice(0, 3);
     box.hidden = !top.length; rh.hidden = items.length <= 3;
     box.className = 'podium n' + top.length;
-    box.innerHTML = '<div class="pd-title"><b>🏆 本期擂台</b><span>热度前三</span></div><div class="pd-row">' + top.map(podCard).join('') + '</div>';
+    box.innerHTML = '<div class="pd-title"><b>🏆 本期擂台</b><span>热度前三</span></div><div class="pd-row">' + top.map(function (it, k) { return podCard(it, k, k); }).join('') + '</div>';
     wirePics(box);
   }
   var layout = setupCols(function (n) {
@@ -100,8 +100,14 @@
     document.getElementById('extra').textContent = data && data.extra ? data.extra : '';
     layout(true);
   }
+  function itemByI(i) {
+    var items = ranked((data && data.items) || []);
+    return items[+i];
+  }
   ['feed', 'podium'].forEach(function (id) {
     document.getElementById(id).addEventListener('click', function (e) {
+      var op = e.target.closest('button.op');
+      if (op) { e.preventDefault(); var it = itemByI(op.dataset.i); openTweetViewer(it && it.post); return; }
       var f = e.target.closest('figure[data-full]'); if (f && f.querySelector('.pic.ok')) window.open(f.dataset.full, '_blank');
     });
   });
