@@ -8,7 +8,8 @@ function qs(k) { var m = location.search.match(new RegExp('[?&]' + k + '=([^&]+)
 function setQs(o) {
   var p = new URLSearchParams(location.search);
   Object.keys(o).forEach(function (k) { o[k] ? p.set(k, o[k]) : p.delete(k); });
-  history.replaceState(null, '', '?' + p.toString());
+  var q = p.toString();
+  history.replaceState(null, '', q ? ('?' + q) : (location.pathname || '/'));
 }
 
 /* 右侧时间线（桌面固定在右侧，手机变成右侧抽屉）

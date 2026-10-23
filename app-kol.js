@@ -86,7 +86,10 @@
       render();
     });
     document.title = '今日AI速报 · KOL · ' + md(cur.date) + (cur.kind === 'night' ? '夜间版' : '白天版');
-    setQs({ date: cur.date, ed: cur.kind });
+    // 最新一期不带查询参数，打开域名就直接看最新；往期才写 ?date=&ed=
+    var latestDate = dates[0], latestKind = (ed(latestDate).slice(-1)[0] || {}).kind;
+    if (cur.date === latestDate && cur.kind === latestKind) setQs({ date: '', ed: '' });
+    else setQs({ date: cur.date, ed: cur.kind });
     K = e ? AIT.data.k[e.id] : [];
     if (!K && e) {
       layout(true);  // 骨架屏
