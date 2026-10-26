@@ -194,46 +194,56 @@ function twMetrics(pm) {
   pm = pm || [0, 0, 0, 0];
   return '<div class="ta"><span>' + TW_ICON.r + twNum(pm[0]) + '</span><span>' + TW_ICON.rt + twNum(pm[1]) + '</span><span>' + TW_ICON.l + twNum(pm[2]) + '</span><span>' + TW_ICON.v + twNum(pm[3]) + '</span></div>';
 }
+var X_LOGO = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.24 2.25h3.31l-7.23 8.26 8.5 11.24h-6.66l-5.21-6.82-5.97 6.82H1.68l7.73-8.84L1.25 2.25h6.83l4.71 6.23 5.45-6.23zm-1.16 17.52h1.83L7.08 4.13H5.12l11.96 15.64z"/></svg>';
+function twUrl(post, url) {
+  if (post && post.u) return post.u;
+  if (url) return url;
+  var id = post && post.id, h = post && post.a && post.a.h;
+  return id ? (h ? 'https://x.com/' + h + '/status/' + id : 'https://x.com/i/status/' + id) : '';
+}
+/* 只建一次弹层节点，之后复用；动画只用 transform/opacity */
+var TWM = null;
 function ensureTweetModal() {
-  var m = document.getElementById('tweetModal');
-  if (m) return m;
-  m = document.createElement('div');
+  if (TWM) return TWM;
+  var m = document.createElement('div');
   m.id = 'tweetModal'; m.className = 'modal tweet-modal'; m.hidden = true;
   m.innerHTML = '<div class="sheet" role="dialog" aria-modal="true" aria-label="原帖">' +
-    '<div class="sheet-h" id="tweetMh"><div><b>原帖</b><em>离线存档</em></div><button type="button" class="x" aria-label="关闭">×</button></div>' +
+    '<div class="sheet-h" id="tweetMh"><div><b>原帖</b></div>' +
+    '<a class="tw-jump" id="tweetJump" href="#" target="_blank" rel="noopener" hidden>' + X_LOGO + '<span>跳转 X</span></a>' +
+    '<button type="button" class="x" aria-label="关闭">×</button></div>' +
     '<div class="tl" id="tweetMb"></div></div>';
   document.body.appendChild(m);
   m.addEventListener('click', function (e) {
-    if (e.target.id === 'tweetModal' || e.target.closest('.x')) closeTweetViewer();
+    if (e.target === m || e.target.closest('.x')) { closeTweetViewer(); return; }
     var f = e.target.closest('[data-full]'); if (f && f.dataset.full) window.open(f.dataset.full, '_blank');
   });
-  if (!ensureTweetModal._esc) {
-    ensureTweetModal._esc = 1;
-    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeTweetViewer(); });
-  }
-  return m;
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeTweetViewer(); });
+  TWM = { m: m, mb: m.querySelector('#tweetMb'), jump: m.querySelector('#tweetJump'), t: 0 };
+  return TWM;
 }
 function closeTweetViewer() {
-  var m = document.getElementById('tweetModal'); if (!m || m.hidden) return;
-  m.classList.remove('show'); document.body.classList.remove('lock');
-  setTimeout(function () { m.hidden = true; }, 200);
+  if (!TWM || TWM.m.hidden) return;
+  var m = TWM.m;
+  m.classList.remove('show'); var km = document.getElementById('modal'); if (!km || km.hidden) document.documentElement.classList.remove('lock');
+  clearTimeout(TWM.t); TWM.t = setTimeout(function () { m.hidden = true; TWM.mb.innerHTML = ''; }, 160);
 }
-function openTweetViewer(post) {
-  var m = ensureTweetModal(), mb = document.getElementById('tweetMb'), mh = document.getElementById('tweetMh');
-  m.hidden = false; document.body.classList.add('lock');
-  requestAnimationFrame(function () { m.classList.add('show'); });
-  mh.innerHTML = '<div><b>原帖</b><em>离线存档 · 不跳转 X</em></div><button type="button" class="x" aria-label="关闭">×</button>';
-  mb.scrollTop = 0;
+function openTweetViewer(post, url) {
+  var w = ensureTweetModal(), m = w.m, mb = w.mb;
+  clearTimeout(w.t);
+  var href = twUrl(post, url);
+  w.jump.hidden = !href; if (href) w.jump.href = href;
   if (!post || !post.t) {
-    mb.innerHTML = '<div class="tw-empty"><b>这条原帖还没存下来</b><p>本期速报里暂时没有离线正文，稍后再来看看。</p></div>';
-    return;
+    mb.innerHTML = '<div class="tw-empty"><b>这条原帖还没存下来</b><p>本期速报里暂时没有离线正文' + (href ? '，可以点右上角「跳转 X」看原帖。' : '，稍后再来看看。') + '</p></div>';
+  } else {
+    var a = post.a || {};
+    var ts = post.ts ? (post.ts.slice(5, 10).replace('-', '/') + ' ' + post.ts.slice(11, 16)) : '';
+    mb.innerHTML = '<article class="tw tw-detail">' + (a.av ? pic(a.av, 1, 'tav') : twAv(a, 'tav')) + '<div class="tb">' +
+      '<div class="th"><b>' + esc(a.n || a.h || '未知作者') + '</b><span>@' + esc(a.h || '') + '</span></div>' +
+      '<div class="tt">' + twRich(post.t) + '</div>' + twMedia(post.m) +
+      (ts ? '<div class="tw-time">' + esc(ts) + ' · 北京时间</div>' : '') +
+      twMetrics(post.pm) + '</div></article>';
   }
-  var a = post.a || {};
-  var ts = post.ts ? (post.ts.slice(5, 10).replace('-', '/') + ' ' + post.ts.slice(11, 16)) : '';
-  mb.innerHTML = '<article class="tw tw-detail">' + twAv(a, 'tav') + '<div class="tb">' +
-    '<div class="th"><b>' + esc(a.n || a.h || '未知作者') + '</b><span>@' + esc(a.h || '') + '</span></div>' +
-    '<div class="tt">' + twRich(post.t) + '</div>' + twMedia(post.m) +
-    (ts ? '<div class="tw-time">' + esc(ts) + ' · 北京时间</div>' : '') +
-    twMetrics(post.pm) + '</div></article>';
-  wirePics(m);
+  mb.scrollTop = 0;
+  m.hidden = false; document.documentElement.classList.add('lock');
+  requestAnimationFrame(function () { requestAnimationFrame(function () { m.classList.add('show'); wirePics(mb); }); });
 }

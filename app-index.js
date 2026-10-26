@@ -107,7 +107,7 @@
   ['feed', 'podium'].forEach(function (id) {
     document.getElementById(id).addEventListener('click', function (e) {
       var op = e.target.closest('button.op');
-      if (op) { e.preventDefault(); var it = itemByI(op.dataset.i); openTweetViewer(it && it.post); return; }
+      if (op) { e.preventDefault(); var it = itemByI(op.dataset.i); openTweetViewer(it && it.post, it && it.u); return; }
       var f = e.target.closest('figure[data-full]'); if (f && f.querySelector('.pic.ok')) window.open(f.dataset.full, '_blank');
     });
   });

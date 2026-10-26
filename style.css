@@ -1,5 +1,5 @@
 /* 今日AI速报 · 简约主题：白天亮色 / 晚上暗色（由 theme.js 按北京时间切换） */
-:root { --mw: 760px; }
+:root { scrollbar-gutter: stable; --mw: 760px; }
 html[data-cols="2"] { --mw: 1040px; }
 html[data-cols="3"] { --mw: 1300px; }
 :root, [data-theme="light"] {
@@ -20,7 +20,7 @@ body {
   background-image: radial-gradient(900px 420px at 15% -10%, var(--glow), transparent 70%), radial-gradient(700px 380px at 95% 0%, rgba(224, 72, 139, .07), transparent 70%);
   background-attachment: fixed; transition: background-color .5s, color .5s; overflow-x: hidden;
 }
-body.lock { overflow: hidden; }
+html.lock { overflow: hidden; }
 a { color: inherit; text-decoration: none; }
 button { font: inherit; color: inherit; cursor: pointer; }
 
@@ -82,12 +82,13 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 10px
 .pc { flex: 0 0 auto; font-size: 13px; font-weight: 600; color: var(--a1); background: var(--glow); padding: 3px 10px; border-radius: 999px; }
 
 /* 弹窗：X 风格帖子 */
-.modal { position: fixed; inset: 0; z-index: 50; background: rgba(5, 7, 12, .55); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-  display: flex; align-items: flex-start; justify-content: center; padding: 5vh 16px; opacity: 0; transition: opacity .2s; }
+.modal { position: fixed; inset: 0; z-index: 50; background: rgba(5, 7, 12, .62); contain: strict;
+  display: flex; align-items: flex-start; justify-content: center; padding: 5vh 16px; opacity: 0; transition: opacity .15s ease-out; will-change: opacity; }
+[data-theme="dark"] .modal { background: rgba(0, 0, 0, .7); }
 .modal.show { opacity: 1; }
 .modal[hidden] { display: none; }
 .sheet { width: 100%; max-width: 600px; max-height: 90vh; display: flex; flex-direction: column; background: var(--card); border-radius: 20px;
-  border: 1px solid var(--line); box-shadow: 0 30px 80px rgba(0, 0, 0, .35); overflow: hidden; transform: translateY(12px); transition: transform .25s; }
+  border: 1px solid var(--line); box-shadow: 0 16px 40px rgba(0, 0, 0, .28); overflow: hidden; transform: translateY(8px) scale(.985); transition: transform .15s ease-out; will-change: transform; contain: layout paint; }
 .modal.show .sheet { transform: none; }
 .sheet-h { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--line); }
 .sheet-h div { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.35; }
@@ -457,4 +458,42 @@ html[data-cols="1"] .more-sk .col:nth-child(n+2), html[data-cols="2"] .more-sk .
 .tw-empty { padding: 48px 28px; text-align: center; }
 .tw-empty b { display: block; font-size: 17px; margin-bottom: 8px; }
 .tw-empty p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.7; }
-body.lock { overflow: hidden; }
+html.lock { overflow: hidden; }
+
+/* 「跳转 X」按钮：X 风格黑/白胶囊 */
+.tw-jump { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 14px; border-radius: 999px; font-size: 13px; font-weight: 700;
+  background: #0f1419; color: #fff; text-decoration: none; white-space: nowrap; transition: opacity .15s; }
+.tw-jump:hover { opacity: .85; }
+.tw-jump svg { width: 14px; height: 14px; fill: currentColor; }
+.tw-jump[hidden] { display: none; }
+[data-theme="dark"] .tw-jump { background: #eff3f4; color: #0f1419; }
+/* 弹层打开时暂停背后的加载动画，省掉无谓重绘 */
+html.lock main .pic, html.lock main .sk { animation-play-state: paused; }
+html.lock main .pic-bot, html.lock main .pic-bot * { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) { .modal, .sheet { transition: none; } }
+
+/* 在线访客（类似飞书文档右上角的头像堆叠） */
+.pres { margin-left: auto; margin-right: 14px; display: flex; align-items: center; gap: 10px; animation: presIn .3s ease-out; }
+.pres[hidden] { display: none; }
+@keyframes presIn { from { opacity: 0; } to { opacity: 1; } }
+.pres-av { display: flex; align-items: center; padding-left: 8px; }
+.pres-av i { position: relative; width: 30px; height: 30px; margin-left: -8px; border-radius: 50%; background: var(--card);
+  box-shadow: 0 0 0 2px var(--card); display: grid; place-items: center; font-style: normal; transition: transform .15s ease-out; }
+.pres-av i:hover { transform: translateY(-2px); z-index: 2; }
+.pres-av i svg { width: 30px; height: 30px; display: block; border-radius: 50%; }
+.pres-av i.more { background: var(--chip); color: var(--text2); font-size: 11px; font-weight: 700; box-shadow: 0 0 0 2px var(--card); }
+[data-theme="dark"] .pres-av i.more { background: #262b38; }
+.pres-av i[data-tip]::after { content: attr(data-tip); position: absolute; top: calc(100% + 8px); left: 50%; transform: translate(-50%, -4px);
+  white-space: nowrap; font-size: 12px; font-weight: 500; line-height: 1; padding: 7px 10px; border-radius: 8px; background: #0f1419; color: #fff;
+  opacity: 0; pointer-events: none; transition: opacity .15s, transform .15s; box-shadow: 0 6px 18px rgba(0, 0, 0, .18); }
+[data-theme="dark"] .pres-av i[data-tip]::after { background: #eff3f4; color: #0f1419; }
+.pres-av i[data-tip]:hover::after { opacity: 1; transform: translate(-50%, 0); }
+.pres-n { font-size: 12px; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.pres-n b { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 3px rgba(34, 197, 94, .18); }
+@media (max-width: 600px) {
+  .pres { margin-right: 8px; gap: 0; }
+  .pres-n { display: none; }
+  .pres-av i, .pres-av i svg { width: 26px; height: 26px; }
+  .pres-av i[data-tip]::after { left: auto; right: 0; transform: translate(0, -4px); }
+  .pres-av i[data-tip]:hover::after { transform: none; }
+}

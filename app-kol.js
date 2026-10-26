@@ -15,7 +15,7 @@
   function edLabel(key) { var e = EDS.filter(function (x) { return x.key === key; })[0]; return e ? md(e.date) + (e.kind === 'night' ? ' 夜间' : ' 白天') : ''; }
   // 一条帖子（X 样式）。inModal 时显示所属期次
   function postHtml(k, p, i, inModal) {
-    return '<article class="tw' + (inModal ? '' : ' xcard') + '" style="--i:' + Math.min(i, 20) + '">' +
+    return '<article class="tw' + (inModal ? '' : ' xcard') + '" data-pid="' + esc(p.id || '') + '" style="--i:' + Math.min(i, 20) + '">' +
       '<button class="who-btn" data-h="' + esc(k.h) + '" aria-label="看 ' + esc(k.n) + ' 的精选">' + av(k, 'tav') + '</button><div class="tb">' +
       '<div class="th"><button class="nm" data-h="' + esc(k.h) + '"><b>' + esc(k.n) + '</b><span>@' + esc(k.h) + '</span></button><span class="dt">· ' + esc(hmTs(p.ts)) + '</span></div>' +
       (p.why ? '<div class="why">' + (inModal ? '<i>' + esc(edLabel(p.ed)) + '</i>' : '') + esc(p.why) + '</div>' : (inModal ? '<div class="why"><i>' + esc(edLabel(p.ed)) + '</i></div>' : '')) +
@@ -88,11 +88,11 @@
     }
     scan(K);
     if (!hit) Object.keys(AIT.data.k || {}).forEach(function (id) { scan(AIT.data.k[id]); });
-    return hit && author ? { id: hit.id, t: hit.t, ts: hit.ts, m: hit.m, pm: hit.pm, a: { n: author.n, h: author.h, av: author.av } } : null;
+    return hit && author ? { id: hit.id, u: hit.u, t: hit.t, ts: hit.ts, m: hit.m, pm: hit.pm, a: { n: author.n, h: author.h, av: author.av } } : { id: pid };
   }
   function open(h) {
     var m = document.getElementById('modal'), mb = document.getElementById('mb');
-    m.hidden = false; document.body.classList.add('lock');
+    m.hidden = false; document.documentElement.classList.add('lock');
     requestAnimationFrame(function () { m.classList.add('show'); });
     mb.innerHTML = '<div class="sk-modal">' + skelCard('x', 0) + skelCard('x', 1) + '</div>'; mb.scrollTop = 0;
     var me = (K || []).filter(function (x) { return x.h.toLowerCase() === String(h).toLowerCase(); })[0];
@@ -112,7 +112,7 @@
       wirePics(m);
     });
   }
-  function close() { var m = document.getElementById('modal'); m.classList.remove('show'); document.body.classList.remove('lock'); setTimeout(function () { m.hidden = true; }, 200); }
+  function close() { var m = document.getElementById('modal'); m.classList.remove('show'); if (!TWM || TWM.m.hidden) document.documentElement.classList.remove('lock'); setTimeout(function () { m.hidden = true; }, 160); }
   document.getElementById('feed').addEventListener('click', function (e) {
     var m = e.target.closest('button.more');
     if (m) { var t = m.previousElementSibling, c = t.classList.toggle('clamp'); m.textContent = c ? '展开全文' : '收起'; return; }
