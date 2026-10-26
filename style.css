@@ -27,15 +27,26 @@ html.lock { overflow: hidden; }
 a { color: inherit; text-decoration: none; }
 button { font: inherit; color: inherit; cursor: pointer; }
 
-/* 顶栏 */
-.top { position: sticky; top: 0; z-index: 10;
-  background: color-mix(in srgb, var(--bg) 94%, transparent); border-bottom: 1px solid var(--line); }
+/* 顶栏 · Grok Bot 风格：黑白单色、几何无衬线 + 等宽小字，左边是本次随机到的机器人小脸 */
+.top { --tb: rgba(255, 255, 255, .96); --tl: rgba(9, 9, 11, .09); --ink: #09090b; --ink2: #71717a; --pill: rgba(9, 9, 11, .05);
+  position: sticky; top: 0; z-index: 10; background: var(--tb); border-bottom: 1px solid var(--tl); }
+[data-theme="dark"] .top { --tb: rgba(0, 0, 0, .94); --tl: rgba(255, 255, 255, .1); --ink: #fafafa; --ink2: #8b8b93; --pill: rgba(255, 255, 255, .07); }
 .top .in { max-width: calc(var(--mw) + 280px); margin: 0 auto; padding: 0 20px; height: 58px; display: flex; align-items: center; justify-content: space-between; }
-.brand { font-weight: 800; font-size: 18px; letter-spacing: .5px; display: flex; align-items: center; gap: 10px; }
-.brand i { width: 12px; height: 12px; border-radius: 50%; background: linear-gradient(135deg, var(--a1), var(--a2)); box-shadow: 0 0 14px var(--a1); }
-.top nav { display: flex; gap: 4px; background: var(--chip); padding: 4px; border-radius: 999px; }
-.top nav a { padding: 4px 16px; border-radius: 999px; font-size: 14px; color: var(--muted); transition: all .25s; }
-.top nav a.on { background: var(--card); color: var(--text); font-weight: 600; box-shadow: var(--shadow); }
+.brand { display: flex; align-items: center; gap: 10px; color: var(--ink); min-width: 0;
+  font-family: "Geist", "Inter", -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; }
+.brand .bot { width: 30px; height: 30px; flex: none; display: block; animation: botIn .5s cubic-bezier(.3, 1.5, .5, 1) both; transition: transform .25s; }
+.brand:hover .bot { transform: rotate(-8deg) scale(1.08); }
+.brand .bn { font-weight: 800; font-size: 18px; letter-spacing: -.2px; white-space: nowrap; }
+.brand .by { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px 2px 7px; border: 1px solid var(--tl); border-radius: 6px; color: var(--ink2); white-space: nowrap;
+  font: 500 10.5px/16px ui-monospace, "SF Mono", "JetBrains Mono", "Geist Mono", Menlo, Consolas, monospace; letter-spacing: .06em; text-transform: uppercase; }
+.brand .by i { width: 6px; height: 6px; border-radius: 50%; background: var(--ink); }
+@keyframes botIn { from { opacity: 0; transform: scale(.6) rotate(-14deg); } }
+.top nav { display: flex; gap: 2px; background: var(--pill); padding: 3px; border-radius: 10px; }
+.top nav a { padding: 4px 14px; border-radius: 7px; font-size: 13.5px; color: var(--ink2); transition: color .2s, background-color .2s;
+  font-family: "Geist", "Inter", -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans CJK SC", sans-serif; font-weight: 500; }
+.top nav a:hover { color: var(--ink); }
+.top nav a.on { background: var(--ink); color: #fff; font-weight: 600; }
+[data-theme="dark"] .top nav a.on { color: #000; }
 
 /* 页头 */
 .head { padding: 44px 0 18px; }
@@ -177,6 +188,10 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 10px
 }
 @media (max-width: 600px) {
   .top .in { padding: 0 16px; height: 54px; }
+  .brand { gap: 8px; }
+  .brand .bot { width: 28px; height: 28px; }
+  .brand .bn { font-size: 17px; }
+  .brand .by { display: none; }
   .head { padding: 30px 0 14px; }
   .head h1 { font-size: 30px; margin-bottom: 16px; }
   .card { padding: 20px 18px 16px; border-radius: 18px; }
@@ -544,3 +559,4 @@ figure[data-full], .mi[data-full] { cursor: zoom-in; }
   .lb-n { top: 18px; }
 }
 @media (prefers-reduced-motion: reduce) { .lb, .lb-img { transition: none !important; } }
+.top .pres-n { font: 500 11.5px/1 ui-monospace, "SF Mono", "JetBrains Mono", "Geist Mono", Menlo, Consolas, monospace; letter-spacing: .02em; color: var(--ink2); }

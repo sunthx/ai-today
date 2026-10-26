@@ -6,6 +6,7 @@
     var h = bjHour();
     var t = force || (h >= 6 && h < 18 ? 'light' : 'dark');
     if (document.documentElement.getAttribute('data-theme') !== t) document.documentElement.setAttribute('data-theme', t);
+    var m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = t === 'light' ? '#ffffff' : '#000000'; // 手机浏览器地址栏颜色跟顶栏一致
   }
   apply();
   setInterval(apply, 60000);
