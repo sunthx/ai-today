@@ -277,6 +277,18 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 10px
 .mi.vid:has(.pic:not(.ok))::after { display: none; }
 .xcard .tt.clamp { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 9; overflow: hidden; }
 .xcard .more { border: 0; background: none; padding: 2px 0 0; color: var(--link); font-size: 13.5px; }
+/* 英文帖「显示中文 / 显示原文」：X 的「翻译帖子」那种轻量文字链接 */
+.trw { display: flex; flex-wrap: wrap; align-items: center; gap: 0 6px; margin-top: 6px; font-size: 13px; line-height: 1.5; color: var(--muted); }
+.trw button { border: 0; background: none; padding: 2px 0; font: inherit; color: var(--link); cursor: pointer; border-radius: 4px; }
+.trw .trd { color: var(--muted); }
+.trw button:hover { text-decoration: underline; text-underline-offset: 3px; }
+.trw button:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.trw i { font-style: normal; opacity: .7; }
+.tt[lang="zh-CN"] { animation: trIn .18s ease-out; }
+@keyframes trIn { from { opacity: .35; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .tt[lang="zh-CN"] { animation: none; } }
+.xcard button.more { display: inline-block; margin-top: 4px; }
+.xcard button.more[hidden] { display: none; }
 .xcard .more:hover { text-decoration: underline; text-underline-offset: 3px; }
 .card figure .pic.err { aspect-ratio: auto !important; height: 132px; }
 

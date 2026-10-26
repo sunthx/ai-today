@@ -42,6 +42,29 @@
 
 维护者：[sunthx](https://github.com/sunthx) · 自动发布
 
+## 英文帖中文译文
+
+外文（主要是英文）帖子在「原帖」弹层和 KOL 卡片里有「显示中文 / 显示原文」按钮。译文是**提前翻译好**写进数据的，点按钮不联网；默认显示原文，点「总是显示中文」后会记在浏览器里（localStorage `aitoday.tr`）。
+
+- 译文缓存：`data/translations.json`，帖子 id → `{zh, src_hash}`。原文变了（指纹对不上）就当作没译，会重新出现在待翻译里。
+- 构建时 `build_data.py` 把译文注入为帖子的 `tz` 字段；缺译文的帖子照常显示，只是没有按钮。
+- 翻译要求：自然通顺的简体中文大白话；保留 @用户名、#话题、网址、`[[网址|显示文字]]` 链接、产品/模型名和换行。
+
+每期更新后的流程：
+
+```
+cd /workspace/ai-digest-site
+rm -f /tmp/tr_pending*.json /tmp/tr_*.txt                              # 0. 清掉上次的临时文件
+python3 build_data.py                                                  # 1. 先构建
+python3 tools/pending_translations.py --out /tmp/tr_pending.json --batch 12   # 2. 列出缺译文的外文帖（分批 /tmp/tr_pending-1.json …）
+# 3. 逐批翻译，写成 .txt：每条以「=== <帖子id>」开头，下面是中文译文
+python3 tools/add_translations.py /tmp/tr_*.txt                         # 4. 合并进 data/translations.json
+python3 build_data.py --no-download                                    # 5. 重新构建（注入 tz）
+./publish.sh                                                           # 6. 发布
+```
+
+`add_translations.py` 也接受 JSON：`{"id": "中文"}` 或 `[{"id": "...", "zh": "..."}]`。测试：`/workspace/.venv-shot/bin/python tools/test_translate.py`（截图 `screenshots/tr-*.png`）。
+
 ## 文件约定（给定时任务用）
 
 每次推送跑完，在本期运行文件夹（如 `/workspace/day1023/`、`/workspace/ov1023/`）里放：

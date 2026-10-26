@@ -19,7 +19,7 @@
       '<button class="who-btn" data-h="' + esc(k.h) + '" aria-label="看 ' + esc(k.n) + ' 的精选">' + av(k, 'tav') + '</button><div class="tb">' +
       '<div class="th"><button class="nm" data-h="' + esc(k.h) + '"><b>' + esc(k.n) + '</b><span>@' + esc(k.h) + '</span></button><span class="dt">· ' + esc(hmTs(p.ts)) + '</span></div>' +
       (p.why ? '<div class="why">' + (inModal ? '<i>' + esc(edLabel(p.ed)) + '</i>' : '') + esc(p.why) + '</div>' : (inModal ? '<div class="why"><i>' + esc(edLabel(p.ed)) + '</i></div>' : '')) +
-      (!inModal && plain(p.t).length > 260 ? '<div class="tt clamp">' + twRich(p.t) + '</div><button class="more">展开全文</button>' : '<div class="tt">' + twRich(p.t) + '</div>') + twMedia(p.m) +
+      twText(p, !inModal && Math.max(plain(p.t).length, p.tz ? plain(p.tz).length * 2 : 0) > 260) + twMedia(p.m) +
       '<div class="ta"><span>' + TW_ICON.r + twNum(p.pm[0]) + '</span><span>' + TW_ICON.rt + twNum(p.pm[1]) + '</span><span>' + TW_ICON.l + twNum(p.pm[2]) + '</span><span>' + TW_ICON.v + twNum(p.pm[3]) + '</span>' +
       '<button type="button" class="op">查看原帖</button></div>' +
       '</div></article>';
@@ -40,7 +40,7 @@
   function fixClamp(feed) {  // 没有真的被截断的，就不显示「展开全文」
     feed.querySelectorAll('.tt.clamp:not([data-ck])').forEach(function (t) {
       t.setAttribute('data-ck', 1);
-      if (t.scrollHeight <= t.clientHeight + 2) { t.classList.remove('clamp'); if (t.nextElementSibling) t.nextElementSibling.remove(); }
+      if (t.scrollHeight <= t.clientHeight + 2) { t.classList.remove('clamp'); var mo = t.nextElementSibling; if (mo && mo.classList.contains('more')) mo.hidden = true; }
     });
   }
   var layout = setupCols(function (n) {
@@ -88,7 +88,7 @@
     }
     scan(K);
     if (!hit) Object.keys(AIT.data.k || {}).forEach(function (id) { scan(AIT.data.k[id]); });
-    return hit && author ? { id: hit.id, u: hit.u, t: hit.t, ts: hit.ts, m: hit.m, pm: hit.pm, a: { n: author.n, h: author.h, av: author.av } } : { id: pid };
+    return hit && author ? { id: hit.id, u: hit.u, t: hit.t, tz: hit.tz, ts: hit.ts, m: hit.m, pm: hit.pm, a: { n: author.n, h: author.h, av: author.av } } : { id: pid };
   }
   function open(h) {
     var m = document.getElementById('modal'), mb = document.getElementById('mb');

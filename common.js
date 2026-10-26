@@ -208,6 +208,44 @@ function twMetrics(pm) {
   pm = pm || [0, 0, 0, 0];
   return '<div class="ta"><span>' + TW_ICON.r + twNum(pm[0]) + '</span><span>' + TW_ICON.rt + twNum(pm[1]) + '</span><span>' + TW_ICON.l + twNum(pm[2]) + '</span><span>' + TW_ICON.v + twNum(pm[3]) + '</span></div>';
 }
+/* ---------- 英文帖的中文译文：译文在构建时已写进数据（帖子的 tz 字段），切换不发任何请求 ----------
+   默认显示原文；点「以后默认显示中文」会记在 localStorage（aitoday.tr = 1），两个页面通用 */
+var TR_KEY = 'aitoday.tr', TRS = {};
+function trDefault() { try { return localStorage.getItem(TR_KEY) === '1'; } catch (x) { return false; } }
+function trBar(zh) {
+  return zh ? '<span class="trn" title="Grok Bot 提前翻译">译文</span><i>·</i><button type="button" class="trb">显示原文</button><i>·</i><button type="button" class="trd">' + (trDefault() ? '改回默认原文' : '总是显示中文') + '</button>'
+    : '<button type="button" class="trb">显示中文</button>';
+}
+// 正文 + 译文切换条。clamp=true（KOL 卡片的长文）时先折叠，后面跟「展开全文」
+function twText(p, clamp) {
+  var has = !!(p && p.tz && p.id), zh = has && trDefault(), t = zh ? p.tz : (p && p.t);
+  if (has) TRS[p.id] = { t: p.t, tz: p.tz };
+  return '<div class="tt' + (clamp ? ' clamp" data-cl="1' : '') + '"' + (zh ? ' lang="zh-CN"' : '') + '>' + twRich(t) + '</div>' +
+    (clamp ? '<button class="more">展开全文</button>' : '') +
+    (has ? '<div class="trw' + (zh ? ' on' : '') + '" data-pid="' + esc(p.id) + '">' + trBar(zh) + '</div>' : '');
+}
+function trApply(w, zh) {
+  var d = TRS[w.dataset.pid], tt = w.parentNode.querySelector('.tt'); if (!d || !tt) return;
+  tt.innerHTML = twRich(zh ? d.tz : d.t);
+  if (zh) tt.setAttribute('lang', 'zh-CN'); else tt.removeAttribute('lang');
+  w.classList.toggle('on', zh); w.innerHTML = trBar(zh);
+  if (tt.dataset.cl) {  // KOL 卡片：换了文字要重新判断要不要折叠
+    var mo = tt.nextElementSibling; if (!mo || !mo.classList.contains('more')) mo = null;
+    var open = mo && !mo.hidden && mo.textContent === '收起';
+    tt.classList.add('clamp');
+    var cut = tt.scrollHeight > tt.clientHeight + 2;
+    if (open || !cut) tt.classList.remove('clamp');
+    if (mo) { mo.hidden = !cut; mo.textContent = open && cut ? '收起' : '展开全文'; }
+  }
+}
+document.addEventListener('click', function (e) {
+  var b = e.target.closest('.trw button'); if (!b) return;
+  var w = b.parentNode;
+  if (b.classList.contains('trb')) { trApply(w, !w.classList.contains('on')); var nb = w.querySelector('.trb'); if (nb) nb.focus({ preventScroll: true }); return; }
+  // 改默认：记住选择，页面上所有有译文的帖子一起切换
+  var on = !trDefault(); try { localStorage.setItem(TR_KEY, on ? '1' : '0'); } catch (x) {}
+  document.querySelectorAll('.trw').forEach(function (x) { trApply(x, on || x === w); });
+});
 var X_LOGO = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.24 2.25h3.31l-7.23 8.26 8.5 11.24h-6.66l-5.21-6.82-5.97 6.82H1.68l7.73-8.84L1.25 2.25h6.83l4.71 6.23 5.45-6.23zm-1.16 17.52h1.83L7.08 4.13H5.12l11.96 15.64z"/></svg>';
 function twUrl(post, url) {
   if (post && post.u) return post.u;
@@ -252,7 +290,7 @@ function openTweetViewer(post, url) {
     var ts = post.ts ? (post.ts.slice(5, 10).replace('-', '/') + ' ' + post.ts.slice(11, 16)) : '';
     mb.innerHTML = '<article class="tw tw-detail">' + (a.av ? pic(a.av, 1, 'tav') : twAv(a, 'tav')) + '<div class="tb">' +
       '<div class="th"><b>' + esc(a.n || a.h || '未知作者') + '</b><span>@' + esc(a.h || '') + '</span></div>' +
-      '<div class="tt">' + twRich(post.t) + '</div>' + twMedia(post.m) +
+      twText(post, false) + twMedia(post.m) +
       (ts ? '<div class="tw-time">' + esc(ts) + ' · 北京时间</div>' : '') +
       twMetrics(post.pm) + '</div></article>';
   }
