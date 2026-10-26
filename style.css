@@ -34,8 +34,23 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .top .in { max-width: calc(var(--mw) + 280px); margin: 0 auto; padding: 0 20px; height: 58px; display: flex; align-items: center; justify-content: space-between; }
 .brand { display: flex; align-items: center; gap: 10px; color: var(--ink); min-width: 0;
   font-family: "Geist", "Inter", -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; }
-.brand .bot { width: 30px; height: 30px; flex: none; display: block; animation: botIn .5s cubic-bezier(.3, 1.5, .5, 1) both; transition: transform .25s; }
-.brand:hover .bot { transform: rotate(-8deg) scale(1.08); }
+.botw { position: relative; flex: none; display: block; width: 30px; height: 30px; cursor: pointer; border-radius: 10px; -webkit-tap-highlight-color: transparent; outline-offset: 3px; }
+.botw > .bot { width: 100%; height: 100%; display: block; overflow: visible; animation: botIn .5s cubic-bezier(.3, 1.5, .5, 1) both; transition: transform .25s; }
+.botw:hover > .bot { transform: rotate(-8deg) scale(1.08); }
+.botw:active > .bot { transform: scale(.92); }
+.bot .ant { transform-box: fill-box; transform-origin: 50% 100%; }
+.bot .ft, .bot .ey, .bot .lk { transform-box: view-box; transform-origin: 32px 31px; }
+.bot .ft { transform-origin: 32px 36px; }
+/* 戳一下飞出的小粒子 + 偶尔冒出来的小气泡（都是一次性 transform/opacity 动画，结束就移除） */
+.botw .bp { position: absolute; left: 11px; top: 9px; width: 10px; height: 10px; pointer-events: none; color: var(--ink); opacity: 0; will-change: transform, opacity; }
+.botw .bp svg { width: 100%; height: 100%; display: block; }
+.botw .bp.tx { width: auto; height: auto; font: 800 12px/1 "Geist", "Inter", -apple-system, "PingFang SC", "Noto Sans CJK SC", sans-serif; }
+.botw .bbl { position: absolute; left: -6px; top: calc(100% + 11px); z-index: 12; padding: 6px 11px; border-radius: 10px; white-space: nowrap; pointer-events: none; opacity: 0;
+  background: var(--ink); color: var(--tb); font: 600 12.5px/1.4 -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans CJK SC", sans-serif; box-shadow: 0 8px 24px rgba(0, 0, 0, .18); transform-origin: 18px 0; }
+[data-theme="dark"] .botw .bbl { color: #000; background: #fafafa; }
+[data-theme="light"] .botw .bbl { color: #fff; }
+.botw .bbl::before { content: ""; position: absolute; left: 15px; top: -5px; width: 10px; height: 10px; background: inherit; border-radius: 2px; transform: rotate(45deg); }
+@media (prefers-reduced-motion: reduce) { .botw > .bot { animation: none; transition: none; } }
 .brand .bn { font-weight: 800; font-size: 18px; letter-spacing: -.2px; white-space: nowrap; }
 .brand .by { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px 2px 7px; border: 1px solid var(--tl); border-radius: 6px; color: var(--ink2); white-space: nowrap;
   font: 500 10.5px/16px ui-monospace, "SF Mono", "JetBrains Mono", "Geist Mono", Menlo, Consolas, monospace; letter-spacing: .06em; text-transform: uppercase; }
@@ -189,7 +204,7 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 10px
 @media (max-width: 600px) {
   .top .in { padding: 0 16px; height: 54px; }
   .brand { gap: 8px; }
-  .brand .bot { width: 28px; height: 28px; }
+  .botw { width: 28px; height: 28px; }
   .brand .bn { font-size: 17px; }
   .brand .by { display: none; }
   .head { padding: 30px 0 14px; }
