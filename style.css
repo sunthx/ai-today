@@ -18,15 +18,18 @@ body {
   margin: 0; background: var(--bg); color: var(--text);
   font: 16px/1.75 -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
   background-image: radial-gradient(900px 420px at 15% -10%, var(--glow), transparent 70%), radial-gradient(700px 380px at 95% 0%, rgba(224, 72, 139, .07), transparent 70%);
-  background-attachment: fixed; transition: background-color .5s, color .5s; overflow-x: hidden;
+  background-image: none; transition: background-color .5s, color .5s; overflow-x: hidden;
 }
+/* 背景光晕放在独立的固定图层上：滚动时不用每帧重绘整页背景（原来的 background-attachment: fixed 会这样） */
+body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-image: radial-gradient(900px 420px at 15% -10%, var(--glow), transparent 70%), radial-gradient(700px 380px at 95% 0%, rgba(224, 72, 139, .07), transparent 70%); }
 html.lock { overflow: hidden; }
 a { color: inherit; text-decoration: none; }
 button { font: inherit; color: inherit; cursor: pointer; }
 
 /* 顶栏 */
-.top { position: sticky; top: 0; z-index: 10; backdrop-filter: saturate(180%) blur(14px); -webkit-backdrop-filter: saturate(180%) blur(14px);
-  background: color-mix(in srgb, var(--bg) 78%, transparent); border-bottom: 1px solid var(--line); }
+.top { position: sticky; top: 0; z-index: 10;
+  background: color-mix(in srgb, var(--bg) 94%, transparent); border-bottom: 1px solid var(--line); }
 .top .in { max-width: calc(var(--mw) + 280px); margin: 0 auto; padding: 0 20px; height: 58px; display: flex; align-items: center; justify-content: space-between; }
 .brand { font-weight: 800; font-size: 18px; letter-spacing: .5px; display: flex; align-items: center; gap: 10px; }
 .brand i { width: 12px; height: 12px; border-radius: 50%; background: linear-gradient(135deg, var(--a1), var(--a2)); box-shadow: 0 0 14px var(--a1); }
@@ -497,3 +500,12 @@ html.lock main .pic-bot, html.lock main .pic-bot * { animation-play-state: pause
   .pres-av i[data-tip]::after { left: auto; right: 0; transform: translate(0, -4px); }
   .pres-av i[data-tip]:hover::after { transform: none; }
 }
+
+/* ---------- 滚动性能 ---------- */
+/* 图片加载动画只在图片接近屏幕时播放；加载完就彻底移除小机器人（原来只是透明，动画还在每帧跑） */
+.pic:not(.in), .pic:not(.in) .pic-bot b, .pic:not(.in) .pic-bot b::after, .pic:not(.in) .pic-bot i, .pic:not(.in) .pic-bot em { animation-play-state: paused; }
+.pic.ok .pic-bot, .pic.err.av .pic-bot, .pic.err.tav .pic-bot { display: none; }
+/* 底部「加载更多」骨架：不在屏幕附近时不播放微光 */
+.more:not(.in) .sk { animation-play-state: paused; }
+/* 已布局过的卡片：离屏时跳过渲染（auto 记住真实高度，瀑布流不跳） */
+.cv { content-visibility: auto; contain-intrinsic-size: auto 600px; }

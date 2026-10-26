@@ -74,11 +74,12 @@
       .sort(function (a, b) { return a.v === vid ? -1 : b.v === vid ? 1 : b.seen - a.seen; });
     var b = mount(); if (!b) return;
     var max = window.innerWidth < 600 ? 2 : 4, show = list.slice(0, max), more = list.length - show.length;
-    b.innerHTML = '<span class="pres-av">' + show.map(function (x) {
+    var html = '<span class="pres-av">' + show.map(function (x) {
       var tip = nick(x.v) + (x.v === vid ? '（你）' : '') + ' · 在看' + PAGE_NAME[x.p];
       return '<i data-tip="' + tip + '" aria-label="' + tip + '">' + avatar(x.v) + '</i>';
     }).join('') + (more > 0 ? '<i class="more" data-tip="还有 ' + more + ' 位访客">+' + more + '</i>' : '') + '</span>' +
       '<span class="pres-n"><b></b>' + list.length + ' 人在看</span>';
+    if (html !== b._h) { b._h = html; b.innerHTML = html; } // 没变化就不动 DOM
     b.hidden = false;
   }
   function payload() { return JSON.stringify({ v: vid, p: PAGE, t: Date.now() }); }

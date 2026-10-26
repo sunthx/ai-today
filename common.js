@@ -119,12 +119,15 @@ function pagedMasonry(feed, htmls, n, opts) {
   more.querySelector('.more-sk').innerHTML = skelFeed(kind, n, 1);
   function next() {
     if (gen !== PAGER.gen) return;
-    var end = Math.min(htmls.length, pos + batch);
+    var end = Math.min(htmls.length, pos + batch), fresh = [];
     for (; pos < end; pos++) {
       var best = cols[0];
       for (var c = 1; c < cols.length; c++) if (cols[c].offsetHeight < best.offsetHeight - 4) best = cols[c];
       best.insertAdjacentHTML('beforeend', htmls[pos]);
+      fresh.push(best.lastElementChild);
     }
+    // 渲染过一帧（真实高度被记住）后再开启离屏跳过渲染
+    if (fresh.length) requestAnimationFrame(function () { setTimeout(function () { fresh.forEach(function (el) { if (el) el.classList.add('cv'); }); }, 0); });
     wirePics(feed);
     if (opts.after) opts.after(feed);
     var rest = htmls.length - pos;
@@ -135,6 +138,7 @@ function pagedMasonry(feed, htmls, n, opts) {
   var busy = false;
   function ask() { if (busy || pos >= htmls.length || gen !== PAGER.gen) return; busy = true; setTimeout(next, 160); }
   if (PAGER.io) PAGER.io.disconnect();
+  if (!more._w) { more._w = 1; watchAnim(more); }
   if ('IntersectionObserver' in window) {
     PAGER.io = new IntersectionObserver(function (es) { if (es.some(function (e) { return e.isIntersecting; })) ask(); }, { rootMargin: '600px 0px' });
     PAGER.io.observe(more);
@@ -153,9 +157,19 @@ function pic(src, r, cls, eager) {
 function picDone(img) {
   var box = img.parentNode; if (!box || !box.classList || !box.classList.contains('pic')) return;
   if (img.naturalWidth > 0) box.classList.add('ok'); else box.classList.add('err');
+  if (ANIM_IO && box._w) { ANIM_IO.unobserve(box); box.classList.remove('in'); }
 }
+/* 只让屏幕附近的加载动画播放 */
+var ANIM_IO = 'IntersectionObserver' in window ? new IntersectionObserver(function (es) {
+  es.forEach(function (e) { e.target.classList.toggle('in', e.isIntersecting); });
+}, { rootMargin: '200px 0px' }) : null;
+function watchAnim(el) { if (ANIM_IO) ANIM_IO.observe(el); else el.classList.add('in'); }
 function wirePics(root) {
-  (root || document).querySelectorAll('.pic img').forEach(function (img) { if (img.complete) picDone(img); });
+  (root || document).querySelectorAll('.pic img').forEach(function (img) {
+    if (img.complete) picDone(img);
+    var box = img.parentNode;
+    if (box && !box._w && !box.classList.contains('ok')) { box._w = 1; watchAnim(box); }
+  });
 }
 document.addEventListener('load', function (e) { if (e.target.tagName === 'IMG') picDone(e.target); }, true);
 document.addEventListener('error', function (e) { if (e.target.tagName === 'IMG') picDone(e.target); }, true);
