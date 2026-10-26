@@ -393,16 +393,13 @@ html[data-cols="1"] .more-sk .col:nth-child(n+2), html[data-cols="2"] .more-sk .
 .pd-card figure .pic { display: block; width: 100%; height: 100%; border-radius: 0; aspect-ratio: auto !important; }
 .pd-card figure .pic > img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .pd-card figure .pic.ok img { cursor: zoom-in; }
-.pd-card figure.noimg {
-  display: grid; place-items: center; border-color: transparent;
-  background: radial-gradient(circle at 30% 25%, color-mix(in srgb, var(--pc) 16%, transparent), transparent 58%), var(--bg2);
-}
-.pd-card figure.noimg span { font-size: 42px; line-height: 1; opacity: .8; }
 .pd-card p {
   margin: 0 0 12px; color: var(--text2); font-size: 13.5px; line-height: 1.7;
   display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3;
   overflow: hidden; min-height: calc(1.7em * 3); flex: 1;
 }
+/* 没图的文字卡：不留图片区，多给几行摘要 */
+.pd-card.tx p { -webkit-line-clamp: 6; }
 .pd-card .src {
   margin-top: auto; padding-top: 10px; border-top: 1px dashed var(--line);
   display: flex; justify-content: space-between; align-items: center; gap: 10px;
@@ -433,6 +430,8 @@ html[data-cols="1"] .more-sk .col:nth-child(n+2), html[data-cols="2"] .more-sk .
   }
   .pd-gold .pd-card { margin: 0 5px 0; padding: 17px 17px 13px; }
   .pd-card figure { height: 150px; }
+  /* 有图 / 没图混排：文字卡把图片区的高度（150px + 12px 间距）换成摘要，三张卡和底座保持齐整 */
+  .podium.mix .pd-card.tx p { -webkit-line-clamp: 10; min-height: calc(1.7em * 3 + 162px); }
 
   .pd-step {
     display: flex; align-items: center; justify-content: center;

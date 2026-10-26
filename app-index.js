@@ -31,10 +31,11 @@
   }
   function podCard(it, k, absI) {
     var m = MEDAL[k], who = it.a ? '<span class="who">' + esc(it.a.n) + ' <em>@' + esc(it.a.h) + '</em></span>' : '<span class="who"></span>';
-    return '<div class="pd pd-' + m[0] + '"><article class="pd-card">' +
+    // 原帖没图就不放图片区（不做占位图），文字卡多显示几行摘要
+    return '<div class="pd pd-' + m[0] + '"><article class="pd-card' + (it.img ? '' : ' tx') + '">' +
       '<div class="pd-medal"><span class="pd-badge">' + m[1] + ' ' + m[2] + '</span><span class="e">' + esc(it.e) + '</span></div>' +
       '<h2>' + esc(it.h) + '</h2>' +
-      (it.img ? '<figure data-full="' + esc(it.img) + '">' + pic(it.ti || it.img, 1.6, '', true) + '</figure>' : '<figure class="noimg" aria-hidden="true"><span>' + esc(it.e || '✨') + '</span></figure>') +
+      (it.img ? '<figure data-full="' + esc(it.img) + '">' + pic(it.ti || it.img, 1.6, '', true) + '</figure>' : '') +
       '<p>' + esc(it.d || it.t) + '</p>' +
       '<div class="src">' + who + (it.u || it.post ? '<button type="button" class="op" data-i="' + absI + '">查看原帖</button>' : '') + '</div>' +
       '</article><div class="pd-step" aria-hidden="true"><span>' + (k + 1) + '</span></div></div>';
@@ -49,7 +50,8 @@
     if (!items) { box.hidden = false; box.className = 'podium loading'; box.innerHTML = podSkel(); rh.hidden = false; return; }
     var top = items.slice(0, 3);
     box.hidden = !top.length; rh.hidden = items.length <= 3;
-    box.className = 'podium n' + top.length;
+    var ni = top.filter(function (it) { return it.img; }).length;
+    box.className = 'podium n' + top.length + (ni && ni < top.length ? ' mix' : '');
     box.innerHTML = '<div class="pd-title"><b>🏆 本期擂台</b><span>热度前三</span></div><div class="pd-row">' + top.map(function (it, k) { return podCard(it, k, k); }).join('') + '</div>';
     wirePics(box);
   }

@@ -194,7 +194,7 @@ function twAv(a, cls) {
   return a.av ? pic(a.av, 1, cls, true) : '<span class="' + cls + ' ph">' + esc((a.n || a.h || '?').slice(0, 1)) + '</span>';
 }
 function twMedia(m) {
-  m = m || [];
+  m = (m || []).filter(function (x) { return x && (x.t || x.src); }); // 没有真实图片就不显示图片区
   if (!m.length) return '';
   var one = m.length === 1, r = one && m[0].w && m[0].h ? Math.min(2, Math.max(0.8, m[0].w / m[0].h)) : 0;
   return '<div class="media n' + Math.min(m.length, 4) + '">' + m.slice(0, 4).map(function (x) {
