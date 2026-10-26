@@ -509,3 +509,38 @@ html.lock main .pic-bot, html.lock main .pic-bot * { animation-play-state: pause
 .more:not(.in) .sk { animation-play-state: paused; }
 /* 已布局过的卡片：离屏时跳过渲染（auto 记住真实高度，瀑布流不跳） */
 .cv { content-visibility: auto; contain-intrinsic-size: auto 600px; }
+
+/* ---------- 站内看图（灯箱） ---------- */
+figure[data-full], .mi[data-full] { cursor: zoom-in; }
+.lb { position: fixed; inset: 0; z-index: 60; background: rgba(0, 0, 0, .9); contain: strict; touch-action: none; user-select: none; -webkit-user-select: none;
+  opacity: 0; transition: opacity .15s ease-out; will-change: opacity; overscroll-behavior: contain; }
+.lb.show { opacity: 1; }
+.lb[hidden] { display: none; }
+.lb-stage { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.lb-img { display: block; max-width: none; border-radius: 6px; background: rgba(255, 255, 255, .04); cursor: zoom-in;
+  transform: translate3d(0, 0, 0) scale(1); will-change: transform; -webkit-user-drag: none; }
+.lb.zoomed .lb-img { cursor: grab; }
+.lb.zoomed .lb-img:active { cursor: grabbing; }
+.lb-btn { position: absolute; display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 50%; padding: 0;
+  background: rgba(255, 255, 255, .12); color: #fff; cursor: pointer; transition: background-color .15s, opacity .15s; -webkit-tap-highlight-color: transparent; }
+.lb-btn:hover { background: rgba(255, 255, 255, .22); }
+.lb-btn svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.lb-x { top: 14px; right: 14px; font-size: 28px; line-height: 1; }
+.lb-prev, .lb-next { top: 50%; margin-top: -22px; display: none; }
+.lb-prev { left: 18px; } .lb-next { right: 18px; }
+.lb.multi .lb-prev, .lb.multi .lb-next { display: grid; }
+.lb.zoomed .lb-prev, .lb.zoomed .lb-next { opacity: 0; pointer-events: none; }
+.lb-n { position: absolute; top: 24px; left: 50%; transform: translateX(-50%); padding: 3px 12px; border-radius: 99px; background: rgba(255, 255, 255, .12);
+  color: #fff; font-size: 13px; font-variant-numeric: tabular-nums; letter-spacing: .5px; }
+.lb-n:empty { display: none; }
+.lb-load { position: absolute; left: 50%; bottom: 26px; width: 22px; height: 22px; margin-left: -11px; border-radius: 50%;
+  border: 2.5px solid rgba(255, 255, 255, .25); border-top-color: #fff; display: none; }
+.lb.loading .lb-load { display: block; animation: lbspin .7s linear infinite; }
+@keyframes lbspin { to { transform: rotate(360deg); } }
+@media (max-width: 600px) {
+  .lb-prev, .lb-next { width: 38px; height: 38px; margin-top: -19px; background: rgba(255, 255, 255, .1); }
+  .lb-prev { left: 8px; } .lb-next { right: 8px; }
+  .lb-x { top: 10px; right: 10px; width: 40px; height: 40px; }
+  .lb-n { top: 18px; }
+}
+@media (prefers-reduced-motion: reduce) { .lb, .lb-img { transition: none !important; } }

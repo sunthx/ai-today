@@ -118,7 +118,6 @@
     if (m) { var t = m.previousElementSibling, c = t.classList.toggle('clamp'); m.textContent = c ? '展开全文' : '收起'; return; }
     var op = e.target.closest('button.op');
     if (op) { openTweetViewer(findPost(op.closest('article.tw') && op.closest('article.tw').dataset.pid)); return; }
-    var full = e.target.closest('[data-full]'); if (full && full.dataset.full) { window.open(full.dataset.full, '_blank'); return; }
     var b = e.target.closest('button[data-h]'); if (b) open(b.dataset.h);
   });
   var qt; document.getElementById('q').addEventListener('input', function (e) { clearTimeout(qt); qt = setTimeout(function () { q = e.target.value.trim(); if (K) layout(true); }, 150); });
@@ -126,7 +125,6 @@
     if (e.target.id === 'modal' || e.target.closest('.x')) { close(); return; }
     var op = e.target.closest('button.op');
     if (op) { openTweetViewer(findPost(op.closest('article.tw') && op.closest('article.tw').dataset.pid)); return; }
-    var full = e.target.closest('[data-full]'); if (full && full.dataset.full) window.open(full.dataset.full, '_blank');
   });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
   render();

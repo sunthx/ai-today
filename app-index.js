@@ -108,7 +108,6 @@
     document.getElementById(id).addEventListener('click', function (e) {
       var op = e.target.closest('button.op');
       if (op) { e.preventDefault(); var it = itemByI(op.dataset.i); openTweetViewer(it && it.post, it && it.u); return; }
-      var f = e.target.closest('figure[data-full]'); if (f && f.querySelector('.pic.ok')) window.open(f.dataset.full, '_blank');
     });
   });
   document.getElementById('foot').textContent = '今日AI速报 · 每天 09:00 / 18:00（北京时间）更新' + (AIT.info ? ' · 数据 ' + AIT.info.built : '');
