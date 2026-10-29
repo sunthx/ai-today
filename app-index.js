@@ -7,6 +7,7 @@
   if (!find(cur.date).length) cur.date = dates[0];
   if (!cur.kind || !find(cur.date, cur.kind).length) { var l = find(cur.date); cur.kind = l.length ? l[l.length - 1].kind : 'day'; }
   var data = null;
+  READ.init('d');
 
   function hm(iso) { return iso ? iso.slice(5, 10).replace('-', '/') + ' ' + iso.slice(11, 16) : ''; }
   function cardHtml(it, i, n) {
@@ -71,7 +72,8 @@
     renderTimeline(dates.map(function (x) {
       var eds = find(x);
       return { date: x, on: x === cur.date, subs: [['night', '🌙 夜间版'], ['day', '☀️ 白天版']].map(function (k) {
-        return { key: k[0], label: k[1], on: x === cur.date && k[0] === cur.kind, disabled: !eds.some(function (e) { return e.kind === k[0]; }) };
+        var hit = eds.filter(function (e) { return e.kind === k[0]; })[0];
+        return { key: k[0], label: k[1], on: x === cur.date && k[0] === cur.kind, disabled: !hit, id: hit && hit.id };
       }) };
     }), function (date, key) {
       cur.date = date;
@@ -89,18 +91,19 @@
   function go() {
     var d = find(cur.date, cur.kind)[0], want = d && d.id;
     head();
+    READ.leave();
     data = d ? AIT.data.d[d.id] : null;
     document.getElementById('extra').textContent = '';
     if (!data && d) {
       layout(true);  // 骨架屏
       AIT.load('d', d.id, function (o) {
         var now = find(cur.date, cur.kind)[0]; if (!now || now.id !== want) return;  // 已经切到别的期
-        data = o || { items: [] }; document.getElementById('extra').textContent = data.extra || ''; layout(true);
+        data = o || { items: [] }; document.getElementById('extra').textContent = data.extra || ''; layout(true); READ.view(want);
       });
       return;
     }
     document.getElementById('extra').textContent = data && data.extra ? data.extra : '';
-    layout(true);
+    layout(true); READ.view(want);
   }
   function itemByI(i) {
     var items = ranked((data && data.items) || []);

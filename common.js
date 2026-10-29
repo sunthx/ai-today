@@ -12,20 +12,92 @@ function setQs(o) {
   history.replaceState(null, '', q ? ('?' + q) : (location.pathname || '/'));
 }
 
+/* 已读 / 未读（只存在本机浏览器 localStorage，按页面分开：速报 aitoday.read.d、KOL aitoday.read.k）
+   自动标记规则：某一期作为当前显示的期，在标签页可见的情况下累计停留满 3 秒，或者往下滚动超过半屏，就算读过了。
+   手动：点每期后面的「未读/已读」小标签可以来回切换（不会跳转）；「全部已读」一键全标。
+   手动改回「未读」的那一期，这次停留期间不再自动标记，切到别的期再回来才重新计时。 */
+var READ = {
+  page: '', key: '', set: {}, ids: [], cur: '', skip: '', t: 0, left: 3000, since: 0, y0: 0,
+  init: function (page) {
+    var self = this; this.page = page; this.key = 'aitoday.read.' + page; this.load();
+    document.addEventListener('visibilitychange', function () { self.arm(); });
+    window.addEventListener('scroll', function () {
+      var y = window.scrollY; if (y < self.y0) { self.y0 = y; return; }  // 只算往下读（切期时回到顶部不算）
+      if (self.cur && !self.set[self.cur] && self.skip !== self.cur && y - self.y0 > window.innerHeight * 0.5) self.mark(self.cur, true);
+    }, { passive: true });
+    window.addEventListener('storage', function (e) { if (e.key === self.key) { self.load(); self.paint(); } });  // 别的标签页改了也同步
+  },
+  load: function () { try { this.set = JSON.parse(localStorage.getItem(this.key) || '{}') || {}; } catch (x) { this.set = {}; } },
+  save: function () { try { localStorage.setItem(this.key, JSON.stringify(this.set)); } catch (x) { } },
+  is: function (id) { return !!this.set[id]; },
+  mark: function (id, on) {
+    if (!id) return;
+    if (on) this.set[id] = Date.now(); else delete this.set[id];
+    if (!on && id === this.cur) { this.skip = id; clearTimeout(this.t); }
+    this.save(); this.paint();
+  },
+  all: function () { var self = this, n = Date.now(); this.ids.forEach(function (id) { if (!self.set[id]) self.set[id] = n; }); this.skip = ''; this.save(); this.paint(); },
+  unread: function () { var self = this; return this.ids.filter(function (id) { return !self.set[id]; }).length; },
+  // 当前显示的期（内容加载好以后调用）：开始计时
+  view: function (id) {
+    if (id !== this.cur) { this.cur = id; this.skip = ''; this.left = 3000; }
+    this.y0 = window.scrollY; this.arm();
+  },
+  // 切到别的期、内容还没加载好时先停表
+  leave: function () { clearTimeout(this.t); this.since = 0; this.cur = ''; },
+  arm: function () {
+    var self = this; clearTimeout(this.t);
+    if (this.since) { this.left -= Date.now() - this.since; this.since = 0; }
+    if (!this.cur || this.set[this.cur] || this.skip === this.cur || document.hidden) return;
+    this.since = Date.now();
+    this.t = setTimeout(function () { self.since = 0; if (self.cur && !self.set[self.cur] && self.skip !== self.cur) self.mark(self.cur, true); }, Math.max(0, this.left));
+  },
+  badge: function (id) {
+    var r = this.is(id);
+    return '<button type="button" class="rs' + (r ? ' rd' : '') + '" data-rid="' + id + '" aria-pressed="' + r + '" title="' + (r ? '已读，点一下改回未读' : '未读，点一下标为已读') + '">' + (r ? '已读' : '未读') + '</button>';
+  },
+  // 只改时间线上的小标签和数字，不重画整条时间线
+  paint: function () {
+    var self = this, box = document.getElementById('timeline'); if (!box) return;
+    box.querySelectorAll('.rs[data-rid]').forEach(function (b) {
+      var r = self.is(b.dataset.rid), was = b.classList.contains('rd');
+      if (r === was) return;
+      b.classList.toggle('rd', r); b.textContent = r ? '已读' : '未读'; b.setAttribute('aria-pressed', r);
+      b.title = r ? '已读，点一下改回未读' : '未读，点一下标为已读';
+      b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop');
+    });
+    box.querySelectorAll('.tn[data-ids]').forEach(function (li) {
+      li.classList.toggle('un', li.dataset.ids.split(',').some(function (id) { return id && !self.is(id); }));
+    });
+    var n = this.unread(), c = box.querySelector('.tl-n'), a = box.querySelector('.tl-all'), fab = document.getElementById('tlBtn');
+    if (c) { c.textContent = n ? n + ' 未读' : '全部已读'; c.classList.toggle('z', !n); }
+    if (a) a.hidden = !n;
+    if (fab) { fab.classList.toggle('un', !!n); fab.setAttribute('data-n', n > 99 ? '99+' : n); fab.setAttribute('aria-label', '往期' + (n ? '，' + n + ' 期未读' : '')); }
+  }
+};
+
 /* 右侧时间线（桌面固定在右侧，手机变成右侧抽屉）
-   nodes: [{date, on, subs:[{key,label,on}]}]；点击回调 onPick(date, key) */
+   nodes: [{date, on, subs:[{key,label,on,id}]}]；点击回调 onPick(date, key)。每一期后面带一个已读/未读小标签 */
 function renderTimeline(nodes, onPick) {
-  var html = '<div class="tl-title">往期</div><ol class="tline">' + nodes.map(function (n) {
-    return '<li class="tn' + (n.on ? ' on' : '') + '"><button class="td" data-d="' + n.date + '"><i></i><b>' + short(n.date) + '</b><small>' + wk(n.date) + '</small></button>' +
+  READ.ids = [];
+  nodes.forEach(function (n) { (n.subs || []).forEach(function (s) { if (s.id) READ.ids.push(s.id); }); });
+  var html = '<div class="tl-title"><span>往期</span><span class="tl-n" aria-live="polite"></span><button type="button" class="tl-all" hidden>全部已读</button></div><ol class="tline">' + nodes.map(function (n) {
+    var ids = (n.subs || []).map(function (s) { return s.id || ''; }).join(',');
+    return '<li class="tn' + (n.on ? ' on' : '') + '" data-ids="' + ids + '"><button class="td" data-d="' + n.date + '"><i></i><b>' + short(n.date) + '</b><small>' + wk(n.date) + '</small></button>' +
       (n.subs && n.subs.length ? '<div class="ts">' + n.subs.map(function (s) {
-        return '<button data-d="' + n.date + '" data-k="' + s.key + '"' + (s.on ? ' class="on"' : '') + (s.disabled ? ' disabled' : '') + '>' + s.label + '</button>';
+        return '<div class="tsr"><button data-d="' + n.date + '" data-k="' + s.key + '"' + (s.on ? ' class="on"' : '') + (s.disabled ? ' disabled' : '') + '>' + s.label + '</button>' +
+          (s.id ? READ.badge(s.id) : '') + '</div>';
       }).join('') + '</div>' : '') + '</li>';
   }).join('') + '</ol>';
   var box = document.getElementById('timeline');
   box.innerHTML = html;
+  READ.paint();
   if (!box.dataset.wired) {
     box.dataset.wired = 1;
     box.addEventListener('click', function (e) {
+      var r = e.target.closest('.rs[data-rid]');
+      if (r) { READ.mark(r.dataset.rid, !READ.is(r.dataset.rid)); return; }
+      if (e.target.closest('.tl-all')) { READ.all(); return; }
       var b = e.target.closest('button[data-d]'); if (!b || b.disabled) return;
       onPick(b.dataset.d, b.dataset.k || ''); closeDrawer();
     });

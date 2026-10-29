@@ -65,6 +65,15 @@ python3 build_data.py --no-download                                    # 5. 重�
 
 `add_translations.py` 也接受 JSON：`{"id": "中文"}` 或 `[{"id": "...", "zh": "..."}]`。测试：`/workspace/.venv-shot/bin/python tools/test_translate.py`（截图 `screenshots/tr-*.png`）。
 
+## 往期已读 / 未读
+
+右侧时间线（手机上是「往期」抽屉）每一期后面都有一个小标签：紫色圆点 **未读**，灰色 ✓ **已读**。标题旁显示还有几期未读，并有「全部已读」；手机右下角「往期」按钮上也会显示未读数。
+
+- **自动标记**：某一期作为当前显示的期，在标签页可见时累计停留满 3 秒（切到别的标签页会暂停计时），或者在这一期往下滚动超过半屏，就自动算已读。
+- **手动切换**：点小标签就在已读 / 未读之间切换，不会跳转页面；手动改回未读的那一期，本次停留期间不会被再次自动标记。
+- **存储**：只存在本机浏览器 localStorage（速报页 `aitoday.read.d`、KOL 页 `aitoday.read.k`，按期 id 记录），不上传、不需要账号；清浏览器数据就会重置。多开标签页会自动同步。
+- 新的一期（定时任务生成）天然就是未读，构建和发布流程不用改。测试：`/workspace/.venv-shot/bin/python tools/test_read.py [线上地址]`。
+
 ## 文件约定（给定时任务用）
 
 每次推送跑完，在本期运行文件夹（如 `/workspace/day1023/`、`/workspace/ov1023/`）里放：

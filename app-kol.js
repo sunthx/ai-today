@@ -6,6 +6,7 @@
   var cur = { date: qs('date'), kind: qs('ed') };
   if (!ed(cur.date).length) cur.date = dates[0] || '';
   if (!cur.kind || !ed(cur.date, cur.kind).length) { var l = ed(cur.date); cur.kind = l.length ? l[l.length - 1].kind : 'day'; }
+  READ.init('k');
   var K = null;  // 当前这一期的博主和精选帖子
   var q = '';
   function plain(t) { return (t || '').replace(/\[\[[^|\]]+\|([^\]]+)\]\]/g, '$1'); }
@@ -51,13 +52,14 @@
     pagedMasonry(feed, rs.map(function (r, i) { return postHtml(r.k, r.p, i % 12, false); }), n, { kind: 'x', batch: n === 1 ? 6 : n * 4, after: fixClamp });
   });
   function render() {
-    var e = ed(cur.date, cur.kind)[0], want = e && e.id;
+    var e = ed(cur.date, cur.kind)[0], want = e && e.id; READ.leave();
     document.getElementById('title').innerHTML = esc(md(cur.date)) + ' <span>' + (cur.kind === 'night' ? '夜间版' : '白天版') + '</span>';
     document.getElementById('range').textContent = e ? '北京时间 ' + e.start + ' – ' + e.end + ' · ' + wk(cur.date) + ' · 博主精选' : '';
     renderTimeline(dates.map(function (x) {
       var eds = ed(x);
       return { date: x, on: x === cur.date, subs: [['night', '🌙 夜间版'], ['day', '☀️ 白天版']].map(function (k) {
-        return { key: k[0], label: k[1], on: x === cur.date && k[0] === cur.kind, disabled: !eds.some(function (y) { return y.kind === k[0]; }) };
+        var hit = eds.filter(function (y) { return y.kind === k[0]; })[0];
+        return { key: k[0], label: k[1], on: x === cur.date && k[0] === cur.kind, disabled: !hit, id: hit && hit.id };
       }) };
     }), function (date, key) {
       cur.date = date; if (key) cur.kind = key;
@@ -73,10 +75,10 @@
     K = e ? AIT.data.k[e.id] : [];
     if (!K && e) {
       layout(true);  // 骨架屏
-      AIT.load('k', e.id, function (o) { var now = ed(cur.date, cur.kind)[0]; if (!now || now.id !== want) return; K = o || []; layout(true); });
+      AIT.load('k', e.id, function (o) { var now = ed(cur.date, cur.kind)[0]; if (!now || now.id !== want) return; K = o || []; layout(true); READ.view(want); });
       return;
     }
-    layout(true);
+    layout(true); READ.view(want);
   }
   function findPost(pid) {
     if (!pid) return null;
