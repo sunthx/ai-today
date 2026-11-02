@@ -90,3 +90,21 @@ bash /workspace/ai-digest-site/publish.sh
 ```
 
 不联网下载图片时加 `--no-download`。截图自检：`/workspace/.venv-shot/bin/python shot.py`。
+
+## 模型排名（rank.html）
+
+顶栏「排名」页：把主流 AI 测评汇总成一张表，有综合分、开源/闭源筛选，点表头可排序，测评名旁的「?」有大白话说明。
+
+- **数据来源**（分数照抄原始榜单，没有就显示「—」，不估算，也不拿相近版本顶替）：
+  - [Artificial Analysis](https://artificialanalysis.ai/leaderboards/models)：HLE（Diamond）、CritPt、Terminal-Bench 4.0、FrontierCode 2.0、GDPval-AA、AA-Omniscience 答对率、AA-LCR 长文推理；另外 AA 智能指数只作参考列，不计入综合分
+  - [ARC Prize](https://arcprize.org/leaderboard)：ARC-AGI-2 半私有集（官方数据 `/media/data/leaderboard/v2.json`，取该模型各思考档位里最好的一档）
+  - [LMArena 文字竞技场](https://lmarena.ai/leaderboard/text)：Elo。网页是 JS 渲染，分数手抄在 `tools/build_leaderboard.py` 的 `MODELS` 里，更新时要照网页改，并改 `LMARENA_PAGE_DATE`
+- **综合分**：每项测评在本表模型里做 min-max 归一到 0–100（最好 100、最差 0），再对模型有成绩的各项取平均；有成绩的项数 ≥ 测评总数一半才排名，表里显示「有成绩项数/总项数」。
+- **重建**：`python3 tools/build_leaderboard.py`（用 `data/lb_raw/` 里已抓好的原始数据）；加 `--fetch` 先重新抓 AA 和 ARC。增删模型改脚本里的 `MODELS`（AA 的 slug、显示名、档位、ARC modelId 前缀、LMArena Elo）。`data/lb_raw/` 不发布。
+- **数据契约** `data/leaderboard.js` → `window.LEADERBOARD = {...}`：
+  - `updated`：生成时间，北京时间 `YYYY-MM-DD HH:MM`；`minCoverage`：参与排名最少要有几项成绩
+  - `benchmarks[]`：`{key, name, zh(大白话说明), fmt('pct' 0–1 小数按百分比显示 / 'int' 整数分), source, url, fetched(抓取日期), note}`，顺序就是表格列的顺序
+  - `reference`：`{key:'aaIndex', name, url, fetched, zh}`，参考列，不计入综合分
+  - `models[]`：`{id, name, variant(思考档位), org, open(是否开源权重), aaIndex, v:{测评key: 原始分或 null}, n:{测评key: 0–100 归一分或 null}, cov(有成绩项数), score(综合分或 null), rank(名次或 null)}`
+- **自检**：`/workspace/.venv-shot/bin/python tools/test_rank.py`（亮/暗 × 桌面/手机，截图 `screenshots/leaderboard-*.png`，检查报错、溢出、排序、筛选、说明浮层）。
+- 发布：`publish.sh` 已包含 `rank.html`、`app-rank.js`、`data/leaderboard.js`（都会加 `?v=` 版本号）。
