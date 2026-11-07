@@ -9,6 +9,16 @@
   var best = {}, lo = {};
   B.forEach(function (b) { var xs = M.map(function (m) { return m.v[b.key]; }).filter(function (x) { return x != null; }); best[b.key] = Math.max.apply(null, xs); lo[b.key] = Math.min.apply(null, xs); });
   var heat = function (b, x) { var r = best[b.key] - lo[b.key]; return r > 0 ? (x - lo[b.key]) / r : 1; };
+  var LOGO = { Google: 'google.svg', Anthropic: 'anthropic.svg:m', OpenAI: 'openai.svg:m', Meta: 'meta.svg', Kimi: 'kimi.svg', DeepSeek: 'deepseek.svg',
+    Alibaba: 'alibaba.svg', 'Z AI': 'zai.svg:m', SpaceXAI: 'spacexai.svg:m', 'Thinking Machines': 'thinking-machines.png', Tencent: 'tencent.svg',
+    Xiaomi: 'xiaomi.svg:m', MiniMax: 'minimax.svg', InclusionAI: 'inclusionai.svg', StepFun: 'stepfun.svg', Mistral: 'mistral.svg',
+    Reflection: 'reflection.svg', 'Institute of Foundation Models': 'ifm.png', Upstage: 'upstage.svg', NVIDIA: 'nvidia.svg' };
+  var logo = function (m) {
+    var o = m.org || m.name, f = LOGO[o];
+    if (!f) return '<span class="og" aria-hidden="true" style="--oh:' + hue(o) + '">' + esc(o.charAt(0).toUpperCase()) + '</span>';
+    var p = f.split(':');
+    return '<span class="og lg' + (p[1] ? ' mono' : '') + '" aria-hidden="true"><img src="media/logos/' + p[0] + '" alt="" width="20" height="20" loading="lazy" decoding="async"></span>';
+  };
   var hue = function (s) { var h = 0; for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 360; return h; };
   document.getElementById('rkSub').textContent = '前 ' + M.length + ' 名 · 综合 ' + D.total + ' 项主流测评';
   document.getElementById('rkUpd').textContent = '更新于 ' + D.updated + '（北京时间）';
@@ -36,7 +46,7 @@
     });
     T.tBodies[0].innerHTML = rows.map(function (m) {
       return '<tr><td class="c-rk"><span class="rn">' + m.rank + '</span></td>' +
-        '<th class="c-m" scope="row"><span class="mw"><span class="og" aria-hidden="true" style="--oh:' + hue(m.org || m.name) + '">' + esc((m.org || m.name).charAt(0).toUpperCase()) + '</span>' +
+        '<th class="c-m" scope="row"><span class="mw">' + logo(m) +
         '<span class="mt"><span class="mn">' + esc(m.name) + '</span><span class="mv">' + esc([m.org, m.variant].filter(Boolean).join(' · ')) + '</span></span></span></th>' +
         '<td class="c-sc"><span class="sw"><span class="sv">' + m.score.toFixed(1) + '</span><span class="sb"><i style="width:' + m.score + '%"></i></span></span></td>' +
         B.map(function (b, i) {
