@@ -6,8 +6,10 @@
   var M = D.models, B = D.benchmarks.filter(function (b) { return b.show; });
   var sortKey = 'rank', sortDir = 1;
   var fmt = function (b, x) { return x == null ? '—' : b.fmt === 'pct' ? (x * 100).toFixed(1) : b.fmt === 'num' ? x.toFixed(1) : Math.round(x); };
-  var best = {};
-  B.forEach(function (b) { var xs = M.map(function (m) { return m.v[b.key]; }).filter(function (x) { return x != null; }); best[b.key] = Math.max.apply(null, xs); });
+  var best = {}, lo = {};
+  B.forEach(function (b) { var xs = M.map(function (m) { return m.v[b.key]; }).filter(function (x) { return x != null; }); best[b.key] = Math.max.apply(null, xs); lo[b.key] = Math.min.apply(null, xs); });
+  var heat = function (b, x) { var r = best[b.key] - lo[b.key]; return r > 0 ? (x - lo[b.key]) / r : 1; };
+  var hue = function (s) { var h = 0; for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 360; return h; };
   document.getElementById('rkSub').textContent = '前 ' + M.length + ' 名 · 综合 ' + D.total + ' 项主流测评';
   document.getElementById('rkUpd').textContent = '更新于 ' + D.updated + '（北京时间）';
 
@@ -33,12 +35,14 @@
       return a.rank - b.rank;
     });
     T.tBodies[0].innerHTML = rows.map(function (m) {
-      return '<tr><td class="c-rk">' + m.rank + '</td>' +
-        '<th class="c-m" scope="row"><span class="mn">' + esc(m.name) + '</span><span class="mv">' + esc([m.org, m.variant].filter(Boolean).join(' · ')) + '</span></th>' +
-        '<td class="c-sc"><span class="sv">' + m.score.toFixed(1) + '</span><span class="sb"><i style="width:' + m.score + '%"></i></span></td>' +
+      return '<tr><td class="c-rk"><span class="rn">' + m.rank + '</span></td>' +
+        '<th class="c-m" scope="row"><span class="mw"><span class="og" aria-hidden="true" style="--oh:' + hue(m.org || m.name) + '">' + esc((m.org || m.name).charAt(0).toUpperCase()) + '</span>' +
+        '<span class="mt"><span class="mn">' + esc(m.name) + '</span><span class="mv">' + esc([m.org, m.variant].filter(Boolean).join(' · ')) + '</span></span></span></th>' +
+        '<td class="c-sc"><span class="sw"><span class="sv">' + m.score.toFixed(1) + '</span><span class="sb"><i style="width:' + m.score + '%"></i></span></span></td>' +
         B.map(function (b, i) {
           var x = m.v[b.key], top = x != null && x === best[b.key];
-          return '<td class="c-b c-b' + i + (x == null ? ' na' : '') + (top ? ' best' : '') + '">' + fmt(b, x) + '</td>';
+          return '<td class="c-b c-b' + i + (x == null ? ' na' : '') + (top ? ' best' : '') + '">' + (x == null ? '<span class="pn">—</span>' :
+            '<span class="pv" style="--h:' + heat(b, x).toFixed(3) + '">' + fmt(b, x) + '</span>') + '</td>';
         }).join('') + '</tr>';
     }).join('');
   }
