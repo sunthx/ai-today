@@ -704,3 +704,21 @@ html:has(body.page-rank) { scroll-behavior: smooth; }
   .rk-modal { padding: 0; place-items: end stretch; }
   .rk-dlg { max-width: none; max-height: 82vh; border-radius: 18px 18px 0 0; }
 }
+
+/* ===== 添加到桌面提示 ===== */
+.a2 { position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 70; max-width: 420px; margin: 0 auto;
+  padding: 16px 16px 14px; background: var(--card); color: var(--text); border: 1px solid var(--line); border-radius: 18px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, .22); opacity: 0; transform: translateY(16px); transition: opacity .22s ease, transform .22s ease; }
+.a2.on { opacity: 1; transform: none; }
+.a2-x { position: absolute; top: 8px; right: 8px; width: 30px; height: 30px; border: 0; border-radius: 50%; background: transparent; color: var(--muted); font-size: 20px; line-height: 1; }
+.a2-h { display: flex; align-items: center; gap: 12px; padding-right: 26px; }
+.a2-h img { flex: none; border-radius: 11px; }
+.a2-h b { display: block; font-size: 15.5px; font-weight: 700; }
+.a2-h span { display: block; margin-top: 2px; font-size: 12.5px; color: var(--muted); }
+.a2-s { margin: 12px 0 0; padding: 0 0 0 20px; font-size: 13.5px; line-height: 1.75; color: var(--text2); }
+.a2-s b { color: var(--text); }
+.a2-ic { display: inline-grid; place-items: center; width: 22px; height: 22px; margin: 0 1px; vertical-align: -6px; border-radius: 6px; background: var(--chip); color: var(--a1); font-style: normal; }
+.a2-b { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+.a2-b button { border: 0; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; font-weight: 600; }
+.a2-go { background: var(--text); color: var(--bg); }
+.a2-no { background: var(--chip); color: var(--text2); }
