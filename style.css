@@ -722,3 +722,9 @@ html:has(body.page-rank) { scroll-behavior: smooth; }
 .a2-b button { border: 0; border-radius: 999px; padding: 8px 16px; font-size: 13.5px; font-weight: 600; }
 .a2-go { background: var(--text); color: var(--bg); }
 .a2-no { background: var(--chip); color: var(--text2); }
+
+.rk-badge { align-self: center; display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px;
+  background: var(--chip); color: var(--text2); font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+.rk-badge i { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 3px rgba(34, 197, 94, .18); }
+.rk-badge[hidden] { display: none; }
+@media (max-width: 640px) { .rk-badge { font-size: 11.5px; padding: 3px 9px; } }

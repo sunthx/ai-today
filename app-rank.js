@@ -21,6 +21,13 @@
   };
   var hue = function (s) { var h = 0; for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 360; return h; };
   document.getElementById('rkSub').textContent = '前 ' + M.length + ' 名 · 综合 ' + D.total + ' 项主流测评';
+  (function () {
+    var m = /^(\d{4})-(\d{2})-(\d{2}) (\d{2}:\d{2})/.exec(D.updated || ''), b = document.getElementById('rkBadge');
+    if (!m || !b) return;
+    b.lastChild.textContent = (+m[2]) + '月' + (+m[3]) + '日 ' + m[4] + ' 更新';
+    b.title = '数据更新于 ' + D.updated + '（北京时间），每天自动刷新';
+    b.hidden = false;
+  })();
   document.getElementById('rkUpd').textContent = '更新于 ' + D.updated + '（北京时间）';
 
   var cols = [{ k: 'rank', l: '#', c: 'c-rk', n: 1 }, { k: 'name', l: '模型', c: 'c-m' },
