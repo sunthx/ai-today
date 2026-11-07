@@ -129,7 +129,7 @@
     if (window.mqtt) return connect();
     var s = document.createElement('script');
     var cur = document.querySelector('script[src*="presence.js"]'), v = cur && (cur.getAttribute('src').match(/\?v=\w+/) || [''])[0];
-    s.src = 'vendor-mqtt.min.js' + (v || ''); s.async = true; s.onload = connect; s.onerror = function () {};
+    s.src = 'vendor-mqtt.min.js?v=1'; s.async = true; s.onload = connect; s.onerror = function () {};
     document.head.appendChild(s);
   }
   function start() { (window.requestIdleCallback || function (f) { setTimeout(f, 1200); })(load, { timeout: 3000 }); }
