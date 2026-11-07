@@ -728,3 +728,4 @@ html:has(body.page-rank) { scroll-behavior: smooth; }
 .rk-badge i { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 3px rgba(34, 197, 94, .18); }
 .rk-badge[hidden] { display: none; }
 @media (max-width: 640px) { .rk-badge { font-size: 11.5px; padding: 3px 9px; } }
+.rk-head .rk-badge { margin-left: auto; align-self: flex-end; margin-bottom: 2px; }
