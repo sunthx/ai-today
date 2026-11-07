@@ -20,7 +20,7 @@
     return '<span class="og lg' + (p[1] ? ' mono' : '') + '" aria-hidden="true"><img src="media/logos/' + p[0] + '" alt="" width="20" height="20" loading="lazy" decoding="async"></span>';
   };
   var hue = function (s) { var h = 0; for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 360; return h; };
-  document.getElementById('rkSub').textContent = '前 ' + M.length + ' 名 · 综合 ' + D.total + ' 项主流测评';
+  document.getElementById('rkSub').textContent = '前 ' + M.length + ' 名';
   (function () {
     var m = /^(\d{4})-(\d{2})-(\d{2}) (\d{2}:\d{2})/.exec(D.updated || ''), b = document.getElementById('rkBadge');
     if (!m || !b) return;
