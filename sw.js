@@ -1,5 +1,5 @@
 /* 今日AI速报 Service Worker：页面和数据优先走网络（保证最新），图片/脚本优先用缓存（秒开）；断网时用缓存兜底 */
-var V = 'aitoday-2611071721';
+var V = 'aitoday-2611071827';
 self.addEventListener('install', function (e) { self.skipWaiting(); });
 self.addEventListener('activate', function (e) {
   e.waitUntil(caches.keys().then(function (ks) {
