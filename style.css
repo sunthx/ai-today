@@ -608,6 +608,19 @@ figure[data-full], .mi[data-full] { cursor: zoom-in; }
 @media (prefers-reduced-motion: reduce) { .lb, .lb-img { transition: none !important; } }
 .top .pres-n { font: 500 11.5px/1 ui-monospace, "SF Mono", "JetBrains Mono", "Geist Mono", Menlo, Consolas, monospace; letter-spacing: .02em; color: var(--ink2); }
 
+
+/* ===== 首屏加载条（细节增强；关键样式已内联在各 HTML） ===== */
+.boot-bar { position: fixed; top: 0; left: 0; right: 0; height: 2px; z-index: 200; overflow: hidden; pointer-events: none; }
+html.boot-done .boot-bar, html.boot-fail .boot-bar, .boot-bar[hidden] { display: none; }
+.boot-hint { z-index: 150; }
+html.boot-done .boot-hint, html.boot-fail .boot-hint, .boot-hint[hidden] { display: none !important; }
+.boot-fail { background: var(--bg); color: var(--text); }
+.boot-fail p { color: var(--text2); }
+.boot-fail button { background: var(--text); color: var(--bg); }
+.boot-fail button:hover { filter: brightness(1.05); }
+body.page-rank .rk-t tbody.rk-skel td { padding: 12px; }
+body.page-rank .rk-t tbody.rk-skel .sk { vertical-align: middle; }
+
 /* ===== 模型排名页（rank.html） ===== */
 html:has(body.page-rank) { scroll-behavior: smooth; }
 .rk { max-width: 1240px; margin: 0 auto; padding: 0 24px 24px; }

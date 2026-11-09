@@ -1,7 +1,8 @@
 /* 模型排名页：读 window.LEADERBOARD（data/leaderboard.js），渲染可排序表格 + 细项弹窗 + 数据来源弹窗 */
 (function () {
+  if (window.AITBoot) AITBoot.tick();
   var D = window.LEADERBOARD, T = document.getElementById('rkT');
-  if (!D || !T) return;
+  if (!D || !T) { if (window.AITBoot) AITBoot.fail(!D ? '排名数据未加载' : '页面结构异常'); return; }
   var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
   var M = D.models, B = D.benchmarks.filter(function (b) { return b.show; });
   var sortKey = 'rank', sortDir = 1;
@@ -71,6 +72,7 @@
   }
   function render() { head(); body(); }
   render();
+  if (window.AITBoot) AITBoot.done();
 
   T.tHead.addEventListener('click', function (e) {
     var btn = e.target.closest('button[data-k]'); if (!btn) return;

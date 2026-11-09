@@ -1,4 +1,6 @@
 (function () {
+  if (typeof AIT === 'undefined') { if (window.AITBoot) AITBoot.fail('核心脚本未加载'); return; }
+  if (window.AITBoot) AITBoot.tick();
   var EDS = (AIT.idx.k || []).map(function (e) { e.key = e.key || e.date + '/' + e.kind; return e; });
   var dates = []; EDS.forEach(function (e) { if (dates.indexOf(e.date) < 0) dates.push(e.date); });
   dates.sort().reverse();
@@ -75,10 +77,10 @@
     K = e ? AIT.data.k[e.id] : [];
     if (!K && e) {
       layout(true);  // 骨架屏
-      AIT.load('k', e.id, function (o) { var now = ed(cur.date, cur.kind)[0]; if (!now || now.id !== want) return; K = o || []; layout(true); READ.view(want); });
+      AIT.load('k', e.id, function (o) { var now = ed(cur.date, cur.kind)[0]; if (!now || now.id !== want) return; K = o || []; layout(true); READ.view(want); if (window.AITBoot) AITBoot.done(); });
       return;
     }
-    layout(true); READ.view(want);
+    layout(true); READ.view(want); if (window.AITBoot) AITBoot.done();
   }
   function findPost(pid) {
     if (!pid) return null;

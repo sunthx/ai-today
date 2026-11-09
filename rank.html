@@ -1,8 +1,28 @@
 <!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<script>/* 首屏主题+加载条：不依赖外链；超时按“停滞”续命，有进度就重置 */(function(){var f=(location.search.match(/[?&]theme=(light|dark)/)||[])[1],h=(new Date().getUTCHours()+8)%24,t=f||(h>=6&&h<18?'light':'dark'),d=document.documentElement;d.setAttribute('data-theme',t);d.classList.add('booting');d.style.background=t==='dark'?'#0a0c12':'#f5f6fa';var done=0,timer=0,STALL=15000;function arm(){clearTimeout(timer);if(done)return;timer=setTimeout(function(){AITBoot.fail('加载时间有点长，可能是网络不太好');},STALL);}function finish(){d.classList.add('boot-finishing');setTimeout(function(){d.classList.remove('booting','boot-finishing');d.classList.add('boot-done');var b=document.getElementById('bootBar');if(b)b.setAttribute('hidden','');var x=document.getElementById('bootHint');if(x)x.setAttribute('hidden','');},180);}window.AITBoot={tick:function(){if(!done)arm();},done:function(){if(done)return;done=1;clearTimeout(timer);finish();var box=document.getElementById('bootFail');if(box)box.hidden=true;},fail:function(msg){if(done)return;done=1;clearTimeout(timer);d.classList.remove('booting','boot-finishing');d.classList.add('boot-fail');var b=document.getElementById('bootBar');if(b)b.setAttribute('hidden','');var x=document.getElementById('bootHint');if(x)x.setAttribute('hidden','');var box=document.getElementById('bootFail');if(box){box.hidden=false;var p=box.querySelector('[data-boot-msg]');if(p)p.textContent=msg||'加载失败，请检查网络后重试';}}};arm();try{if(typeof PerformanceObserver!=='undefined'){var po=new PerformanceObserver(function(list){var ents=list.getEntries(),i,n;for(i=0;i<ents.length;i++){n=ents[i].name||'';if(/\.(js|css)(\?|$)/i.test(n)||/\/data\//.test(n))AITBoot.tick();}});po.observe({type:'resource',buffered:true});}}catch(e){}window.addEventListener('error',function(e){if(e&&e.target&&e.target.tagName==='SCRIPT'&&e.target.src)AITBoot.fail('有资源加载失败，请重试');},true);document.addEventListener('DOMContentLoaded',function(){AITBoot.tick();var r=document.getElementById('bootReload');if(r)r.addEventListener('click',function(){location.reload();});var m=document.querySelector('meta[name="theme-color"]');if(m)m.content=t==='dark'?'#000000':'#ffffff';});})()</script>
+<style id="bootCss">html{background:#f5f6fa}html[data-theme="dark"]{background:#0a0c12}html,body{margin:0;background:inherit;color:#0e1220}html[data-theme="dark"],html[data-theme="dark"] body{color:#eef0f6}
+.boot-bar{position:fixed;top:0;left:0;right:0;height:2px;z-index:200;overflow:hidden;pointer-events:none;background:transparent}
+.boot-bar>i{display:block;height:100%;width:38%;background:#5b5bf7;transform:translateX(-120%);border-radius:0 1px 1px 0;animation:bootIndet 1.05s ease-in-out infinite}
+html[data-theme="dark"] .boot-bar>i{background:#8b8bff}
+@keyframes bootIndet{0%{transform:translateX(-120%)}100%{transform:translateX(320%)}}
+html.boot-finishing .boot-bar>i{animation:none;width:100%;transform:none}
+html.boot-done .boot-bar,html.boot-fail .boot-bar,.boot-bar[hidden]{display:none!important;opacity:0;visibility:hidden}
+.boot-hint{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%);z-index:150;margin:0;padding:8px 14px;border-radius:999px;font:13.5px/1.4 -apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans CJK SC",sans-serif;color:#7a8296;background:rgba(255,255,255,.72);border:1px solid rgba(14,18,32,.08);pointer-events:none;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+html[data-theme="dark"] .boot-hint{color:#9aa3b5;background:rgba(20,24,35,.78);border-color:rgba(255,255,255,.08)}
+html.boot-done .boot-hint,html.boot-fail .boot-hint,[hidden].boot-hint{display:none!important}
+.boot-fail{position:fixed;inset:0;z-index:180;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px;text-align:center;background:inherit;color:inherit}
+.boot-fail[hidden]{display:none!important}
+.boot-fail p{margin:0;font-size:15px;line-height:1.6;color:#3b4256;max-width:280px}
+html[data-theme="dark"] .boot-fail p{color:#c3c8d6}
+.boot-fail button{border:0;border-radius:999px;padding:10px 20px;font:600 14px/1.2 inherit;background:#0e1220;color:#fff;cursor:pointer}
+html[data-theme="dark"] .boot-fail button{background:#eef0f6;color:#0a0c12}
+.sk{display:inline-block;border-radius:8px;background:rgba(14,18,32,.075)}html[data-theme="dark"] .sk{background:rgba(255,255,255,.07)}
+@media (prefers-reduced-motion:reduce){.boot-bar>i{animation:none;width:55%;transform:none}}
+</style>
 <title>今日AI速报 · 模型排名</title>
 <meta name="description" content="把主流 AI 测评汇总成一张表：一张表看懂谁最强">
-<script src="theme.js?v=2611091901"></script>
+<script defer src="theme.js?v=2611092154"></script>
 <link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48" id="favI">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" id="fav32">
 <link rel="icon" type="image/png" sizes="64x64" href="faces/png/happy-64.png" id="fav64">
@@ -16,22 +36,26 @@
 <meta name="application-name" content="AI速报">
 <meta name="theme-color" content="#ffffff">
 <script>/* Grok Bot 表情：每次打开随机换一个（不和上次重复），网页图标和顶栏小脸用同一个 */(function(){var F=['happy','wink','stars','sleepy','wow','love','cool','think','tongue','blush','laugh','dizzy','cat','sparkle'],l,k;try{l=localStorage.getItem('aitoday.face')}catch(e){}do{k=F[Math.random()*F.length|0]}while(k===l);try{localStorage.setItem('aitoday.face',k)}catch(e){}window.BOT_FACE='faces/'+k+'.svg';var P='faces/png/'+k,L=function(i,h){var e=document.getElementById(i);if(e)e.href=h};L('favI',P+'-32.png');L('fav32',P+'-32.png');L('fav64',P+'-64.png');L('fav',window.BOT_FACE);var m=document.querySelector('meta[name=theme-color]');if(m)m.content=document.documentElement.getAttribute('data-theme')==='dark'?'#000000':'#ffffff'})()</script>
-<link rel="stylesheet" href="style.css?v=2611091901">
-<script defer src="presence.js?v=2611091901"></script>
-<script defer src="install.js?v=2611091901"></script>
-<script defer src="bot-faces.js?v=2611091901"></script>
-<script defer src="bot.js?v=2611091901"></script>
-<script defer src="data/leaderboard.js?v=2611091901"></script>
-<script defer src="app-rank.js?v=2611091901"></script><script type="speculationrules">{"prefetch":[{"urls":["index.html","kol.html","rank.html"],"eagerness":"eager"}]}</script>
+<link rel="stylesheet" href="style.css?v=2611092154">
+<script defer src="presence.js?v=2611092154"></script>
+<script defer src="install.js?v=2611092154"></script>
+<script defer src="bot-faces.js?v=2611092154"></script>
+<script defer src="bot.js?v=2611092154"></script>
+<script defer src="data/leaderboard.js?v=2611092154"></script>
+<script defer src="app-rank.js?v=2611092154"></script><script type="speculationrules">{"prefetch":[{"urls":["index.html","kol.html","rank.html"],"eagerness":"eager"}]}</script>
 </head>
 <body class="page-rank">
+<div id="bootBar" class="boot-bar" role="progressbar" aria-label="页面加载中" aria-valuemin="0" aria-valuemax="100"><i></i></div>
+<p id="bootHint" class="boot-hint">加载中…</p>
+<div id="bootFail" class="boot-fail" hidden role="alert"><p data-boot-msg>加载失败，请检查网络后重试</p><button type="button" id="bootReload">重新加载</button></div>
+
 <header class="top"><div class="in">
   <div class="brand"><span class="botw" id="botW" role="button" tabindex="0" title="戳一下 Grok Bot" aria-label="戳一下 Grok Bot"><img class="bot" id="botFace" width="30" height="30" alt=""><script>document.getElementById('botFace').src=window.BOT_FACE||'faces/happy.svg'</script></span><a class="bn" href="index.html" title="今日AI速报 · Grok Bot 驱动">今日AI速报</a><span class="by" aria-label="由 Grok Bot 驱动"><i></i>Grok Bot</span></div>
   <nav><a href="index.html">速报</a><a href="kol.html">KOL</a><a href="rank.html" class="on">排名</a></nav>
 </div></header>
 <main class="rk">
   <section class="rk-head"><h1>模型排名</h1><p class="rk-sub" id="rkSub"></p><span class="rk-badge" id="rkBadge" hidden><i></i><span></span></span></section>
-  <div class="rk-card"><table class="rk-t" id="rkT"><thead></thead><tbody></tbody></table></div>
+  <div class="rk-card"><table class="rk-t" id="rkT"><thead><tr><th class="c-rk">#</th><th class="c-m">模型</th><th class="c-sc">综合分</th></tr></thead><tbody class="rk-skel" aria-hidden="true"><tr><td class="c-rk"><span class="sk" style="width:22px;height:22px;border-radius:7px;display:inline-block"></span></td><td class="c-m"><span class="sk" style="width:58%;height:14px;display:inline-block;border-radius:6px"></span></td><td class="c-sc"><span class="sk" style="width:36px;height:14px;display:inline-block;border-radius:6px"></span></td></tr><tr><td class="c-rk"><span class="sk" style="width:22px;height:22px;border-radius:7px;display:inline-block"></span></td><td class="c-m"><span class="sk" style="width:58%;height:14px;display:inline-block;border-radius:6px"></span></td><td class="c-sc"><span class="sk" style="width:36px;height:14px;display:inline-block;border-radius:6px"></span></td></tr><tr><td class="c-rk"><span class="sk" style="width:22px;height:22px;border-radius:7px;display:inline-block"></span></td><td class="c-m"><span class="sk" style="width:58%;height:14px;display:inline-block;border-radius:6px"></span></td><td class="c-sc"><span class="sk" style="width:36px;height:14px;display:inline-block;border-radius:6px"></span></td></tr><tr><td class="c-rk"><span class="sk" style="width:22px;height:22px;border-radius:7px;display:inline-block"></span></td><td class="c-m"><span class="sk" style="width:58%;height:14px;display:inline-block;border-radius:6px"></span></td><td class="c-sc"><span class="sk" style="width:36px;height:14px;display:inline-block;border-radius:6px"></span></td></tr><tr><td class="c-rk"><span class="sk" style="width:22px;height:22px;border-radius:7px;display:inline-block"></span></td><td class="c-m"><span class="sk" style="width:58%;height:14px;display:inline-block;border-radius:6px"></span></td><td class="c-sc"><span class="sk" style="width:36px;height:14px;display:inline-block;border-radius:6px"></span></td></tr><tr><td class="c-rk"><span class="sk" style="width:22px;height:22px;border-radius:7px;display:inline-block"></span></td><td class="c-m"><span class="sk" style="width:58%;height:14px;display:inline-block;border-radius:6px"></span></td><td class="c-sc"><span class="sk" style="width:36px;height:14px;display:inline-block;border-radius:6px"></span></td></tr><tr><td class="c-rk"><span class="sk" style="width:22px;height:22px;border-radius:7px;display:inline-block"></span></td><td class="c-m"><span class="sk" style="width:58%;height:14px;display:inline-block;border-radius:6px"></span></td><td class="c-sc"><span class="sk" style="width:36px;height:14px;display:inline-block;border-radius:6px"></span></td></tr><tr><td class="c-rk"><span class="sk" style="width:22px;height:22px;border-radius:7px;display:inline-block"></span></td><td class="c-m"><span class="sk" style="width:58%;height:14px;display:inline-block;border-radius:6px"></span></td><td class="c-sc"><span class="sk" style="width:36px;height:14px;display:inline-block;border-radius:6px"></span></td></tr></tbody></table></div>
   <div class="rk-foot"><button type="button" class="rk-srcbtn" id="rkSrcBtn">数据来源</button><span id="rkUpd"></span></div>
 </main>
 <div class="rk-tip" id="rkTip" role="tooltip" hidden></div>

@@ -1,4 +1,6 @@
 (function () {
+  if (typeof AIT === 'undefined') { if (window.AITBoot) AITBoot.fail('核心脚本未加载'); return; }
+  if (window.AITBoot) AITBoot.tick();
   var IDX = AIT.idx.d || [];
   var dates = []; IDX.forEach(function (d) { if (dates.indexOf(d.date) < 0) dates.push(d.date); });
   dates.sort().reverse();
@@ -98,12 +100,12 @@
       layout(true);  // 骨架屏
       AIT.load('d', d.id, function (o) {
         var now = find(cur.date, cur.kind)[0]; if (!now || now.id !== want) return;  // 已经切到别的期
-        data = o || { items: [] }; document.getElementById('extra').textContent = data.extra || ''; layout(true); READ.view(want);
+        data = o || { items: [] }; document.getElementById('extra').textContent = data.extra || ''; layout(true); READ.view(want); if (window.AITBoot) AITBoot.done();
       });
       return;
     }
     document.getElementById('extra').textContent = data && data.extra ? data.extra : '';
-    layout(true); READ.view(want);
+    layout(true); READ.view(want); if (window.AITBoot) AITBoot.done();
   }
   function itemByI(i) {
     var items = ranked((data && data.items) || []);

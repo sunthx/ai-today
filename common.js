@@ -113,9 +113,10 @@ function closeDrawer() { document.body.classList.remove('drawer'); }
 /* ---------- 数据：按期拆分，用 <script> 动态加载（file:// 也能用） ---------- */
 var AIT = {
   idx: {}, info: null, data: { d: {}, k: {} }, wait: {},
-  index: function (t, list, info) { this.idx[t] = list; this.info = info; },
+  index: function (t, list, info) { this.idx[t] = list; this.info = info; if (window.AITBoot) AITBoot.tick(); },
   put: function (t, id, obj) {
     this.data[t][id] = obj;
+    if (window.AITBoot) AITBoot.tick();
     var w = this.wait[t + id]; delete this.wait[t + id];
     (w || []).forEach(function (f) { f(obj); });
   },
@@ -124,8 +125,10 @@ var AIT = {
     var key = t + id, self = this;
     if (this.wait[key]) return this.wait[key].push(cb);
     this.wait[key] = [cb];
+    if (window.AITBoot) AITBoot.tick();
     var s = document.createElement('script');
     s.src = 'data/' + t + '/' + id + '.js' + (this.info ? '?v=' + encodeURIComponent(this.info.built) : '');
+    s.onload = function () { if (window.AITBoot) AITBoot.tick(); };
     s.onerror = function () { var w = self.wait[key]; delete self.wait[key]; (w || []).forEach(function (f) { f(null); }); };
     document.head.appendChild(s);
   },
