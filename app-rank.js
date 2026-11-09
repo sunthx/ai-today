@@ -1,4 +1,4 @@
-/* 模型排名页：读 window.LEADERBOARD（data/leaderboard.js），渲染可排序表格 + 数据来源弹窗 */
+/* 模型排名页：读 window.LEADERBOARD（data/leaderboard.js），渲染可排序表格 + 细项弹窗 + 数据来源弹窗 */
 (function () {
   var D = window.LEADERBOARD, T = document.getElementById('rkT');
   if (!D || !T) return;
@@ -20,7 +20,7 @@
     return '<span class="og lg' + (p[1] ? ' mono' : '') + '" aria-hidden="true"><img src="media/logos/' + p[0] + '" alt="" width="20" height="20" loading="lazy" decoding="async"></span>';
   };
   var hue = function (s) { var h = 0; for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 360; return h; };
-  document.getElementById('rkSub').textContent = '前 ' + M.length + ' 名';
+  document.getElementById('rkSub').textContent = '前 ' + M.length + ' 名 · 点一行看细项';
   (function () {
     var m = /^(\d{4})-(\d{2})-(\d{2}) (\d{2}:\d{2})/.exec(D.updated || ''), b = document.getElementById('rkBadge');
     if (!m || !b) return;
@@ -34,6 +34,8 @@
     { k: 'score', l: '综合分', c: 'c-sc', n: 1, tip: D.total + ' 项测评各自换算成 0–100 后的平均分' }]
     .concat(B.map(function (b, i) { return { k: b.key, l: b.name, c: 'c-b c-b' + i, n: 1, tip: b.zh, b: b }; }));
   var val = function (m, k) { return k === 'rank' ? m.rank : k === 'name' ? m.name.toLowerCase() : k === 'score' ? m.score : m.v[k]; };
+  var byId = {};
+  M.forEach(function (m) { byId[m.id || m.name] = m; });
 
   function head() {
     T.tHead.innerHTML = '<tr>' + cols.map(function (c) {
@@ -52,9 +54,13 @@
       return a.rank - b.rank;
     });
     T.tBodies[0].innerHTML = rows.map(function (m) {
-      return '<tr><td class="c-rk"><span class="rn">' + m.rank + '</span></td>' +
+      var id = m.id || m.name;
+      var full = [m.name, [m.org, m.variant].filter(Boolean).join(' · ')].filter(Boolean).join(' · ');
+      return '<tr class="rk-row" data-id="' + esc(id) + '" tabindex="0" role="button" aria-label="查看 ' + esc(m.name) + ' 细项评分">' +
+        '<td class="c-rk"><span class="rn">' + m.rank + '</span></td>' +
         '<th class="c-m" scope="row"><span class="mw">' + logo(m) +
-        '<span class="mt"><span class="mn">' + esc(m.name) + '</span><span class="mv">' + esc([m.org, m.variant].filter(Boolean).join(' · ')) + '</span></span></span></th>' +
+        '<span class="mt"><span class="mn" title="' + esc(full) + '">' + esc(m.name) + '</span>' +
+        '<span class="mv" title="' + esc([m.org, m.variant].filter(Boolean).join(' · ')) + '">' + esc([m.org, m.variant].filter(Boolean).join(' · ')) + '</span></span></span></th>' +
         '<td class="c-sc"><span class="sw"><span class="sv">' + m.score.toFixed(1) + '</span><span class="sb"><i style="width:' + m.score + '%"></i></span></span></td>' +
         B.map(function (b, i) {
           var x = m.v[b.key], top = x != null && x === best[b.key];
@@ -88,15 +94,70 @@
   T.tHead.addEventListener('focusout', hideTip);
   window.addEventListener('scroll', function () { if (cur) hideTip(); }, { passive: true });
 
-  /* 数据来源弹窗 */
-  var modal = document.getElementById('rkModal'), lastFocus = null;
-  document.getElementById('rkMb').innerHTML = '<ul class="rk-src">' + D.sources.map(function (s) {
+  /* 共用弹窗：数据来源 / 模型细项 */
+  var modal = document.getElementById('rkModal'), lastFocus = null, mode = null;
+  var mt = document.getElementById('rkMt'), mb = document.getElementById('rkMb');
+  var srcHtml = '<ul class="rk-src">' + D.sources.map(function (s) {
     return '<li><div class="rk-sh"><a href="' + esc(s.url) + '" target="_blank" rel="noopener">' + esc(s.name) + '</a><span>' + esc(s.date) + '</span></div>' +
       '<p>' + esc(s.zh) + (s.note ? '；' + esc(s.note) : '') + '</p><p class="rk-si">' + esc(s.items.join('、')) + '</p></li>';
   }).join('') + '</ul><p class="rk-mnote">分数照抄各榜单原始数据，找不到同一版本的显示 “—”，不估算。</p>';
-  function open() { lastFocus = document.activeElement; modal.hidden = false; document.documentElement.style.overflow = 'hidden'; modal.querySelector('.rk-x').focus(); }
-  function close() { modal.hidden = true; document.documentElement.style.overflow = ''; if (lastFocus) lastFocus.focus(); }
-  document.getElementById('rkSrcBtn').addEventListener('click', open);
-  modal.addEventListener('click', function (e) { if (e.target.closest('[data-close]')) close(); });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !modal.hidden) close(); });
+
+  function openModal() {
+    lastFocus = document.activeElement;
+    modal.hidden = false;
+    document.documentElement.style.overflow = 'hidden';
+    var x = modal.querySelector('.rk-x'); if (x) x.focus();
+  }
+  function closeModal() {
+    modal.hidden = true;
+    document.documentElement.style.overflow = '';
+    mode = null;
+    if (lastFocus) lastFocus.focus();
+  }
+  function openSources() {
+    mode = 'src';
+    mt.textContent = '数据来源';
+    mb.innerHTML = srcHtml;
+    openModal();
+  }
+  function openModel(m) {
+    if (!m) return;
+    mode = 'model';
+    mt.textContent = m.name;
+    var meta = [m.org, m.variant].filter(Boolean).join(' · ');
+    var rows = B.map(function (b) {
+      var x = m.v[b.key], top = x != null && x === best[b.key];
+      return '<li class="rk-dl' + (top ? ' best' : '') + (x == null ? ' na' : '') + '">' +
+        '<div class="rk-dn"><b>' + esc(b.name) + '</b><span>' + esc(b.zh) + '</span></div>' +
+        '<div class="rk-dv">' + (x == null ? '—' : fmt(b, x)) + '</div></li>';
+    }).join('');
+    mb.innerHTML =
+      '<div class="rk-md">' +
+        '<div class="rk-mdh">' + logo(m) +
+          '<div class="rk-mdi"><div class="rk-mdn" title="' + esc(m.name) + '">' + esc(m.name) + '</div>' +
+          (meta ? '<div class="rk-mdm">' + esc(meta) + '</div>' : '') + '</div></div>' +
+        '<div class="rk-mds"><span class="rk-mdsl">综合分</span><span class="rk-mdsv">' + m.score.toFixed(1) + '</span>' +
+          '<span class="rk-mdsb"><i style="width:' + m.score + '%"></i></span></div>' +
+        '<ul class="rk-dll">' + rows + '</ul>' +
+        '<p class="rk-mnote">点空白处或按 Esc 关闭。综合分 = ' + D.total + ' 项测评换算平均。</p>' +
+      '</div>';
+    openModal();
+  }
+
+  document.getElementById('rkSrcBtn').addEventListener('click', openSources);
+  modal.addEventListener('click', function (e) { if (e.target.closest('[data-close]')) closeModal(); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !modal.hidden) closeModal();
+  });
+
+  T.tBodies[0].addEventListener('click', function (e) {
+    var tr = e.target.closest('tr.rk-row'); if (!tr) return;
+    openModel(byId[tr.getAttribute('data-id')]);
+  });
+  T.tBodies[0].addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    var tr = e.target.closest('tr.rk-row'); if (!tr || e.target !== tr) return;
+    e.preventDefault();
+    openModel(byId[tr.getAttribute('data-id')]);
+  });
 })();
