@@ -20,7 +20,12 @@ var READ = {
   page: '', key: '', set: {}, ids: [], cur: '', skip: '', t: 0, left: 3000, since: 0, y0: 0,
   init: function (page) {
     var self = this; this.page = page; this.key = 'aitoday.read.' + page; this.load();
-    document.addEventListener('visibilitychange', function () { self.arm(); });
+    // 标签页切回来（手机后台冻结、返回上一页恢复）时重新读一遍，别的标签页的改动可能没通知到
+    function sync() { self.load(); self.paint(); }
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) sync(); self.arm(); });
+    window.addEventListener('pageshow', function (e) { if (e.persisted) sync(); });
+    window.addEventListener('focus', sync);
+    try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (x) { }  // 请浏览器别在空间紧张时清掉本站记录
     window.addEventListener('scroll', function () {
       var y = window.scrollY; if (y < self.y0) { self.y0 = y; return; }  // 只算往下读（切期时回到顶部不算）
       if (self.cur && !self.set[self.cur] && self.skip !== self.cur && y - self.y0 > window.innerHeight * 0.5) self.mark(self.cur, true);
@@ -32,11 +37,12 @@ var READ = {
   is: function (id) { return !!this.set[id]; },
   mark: function (id, on) {
     if (!id) return;
+    this.load();  // 先读最新的记录再改，免得把别的标签页刚记下的冲掉
     if (on) this.set[id] = Date.now(); else delete this.set[id];
     if (!on && id === this.cur) { this.skip = id; clearTimeout(this.t); }
     this.save(); this.paint();
   },
-  all: function () { var self = this, n = Date.now(); this.ids.forEach(function (id) { if (!self.set[id]) self.set[id] = n; }); this.skip = ''; this.save(); this.paint(); },
+  all: function () { var self = this, n = Date.now(); this.load(); this.ids.forEach(function (id) { if (!self.set[id]) self.set[id] = n; }); this.skip = ''; this.save(); this.paint(); },
   unread: function () { var self = this; return this.ids.filter(function (id) { return !self.set[id]; }).length; },
   // 当前显示的期（内容加载好以后调用）：开始计时
   view: function (id) {
